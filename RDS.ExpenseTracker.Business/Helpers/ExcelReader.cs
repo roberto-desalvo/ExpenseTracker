@@ -52,7 +52,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             FinancialAccount destinationAccount = new();
             foreach (var acc in accounts)
             {
-                if (transferName!.ToString().ToLower().Contains(acc.Name.ToLower()))
+                if (transferName?.ToString().ToLower().Contains(acc.Name.ToLower()) ?? false)
                 {
                     destinationAccount = acc;
                 }
@@ -67,20 +67,17 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Date = dateIsSuccessfullyParsed ? parsedDate : null,
                 DepositId = destinationAccount.Id,
                 WithdrawId = sellaId,
-                Description = transferName.ToString()
+                Description = transferName?.ToString() ?? string.Empty
             };
             return moneyTransfer;
         }
 
         private Transaction? GetTransactionFromDataRow(DataRow row)
         {
-            var date = row[0];
-            var reason = row[1];
             var outflow = row[2];
-            var inflow = row[3];
-            var accountName = row[4];
-
             var ouflowIsNotFloat = !decimal.TryParse(outflow.ToString(), out var parsedOutflow);
+
+            var inflow = row[3];
             var inflowIsNotFloat = !decimal.TryParse(inflow.ToString(), out var parsedInflow);
             if (ouflowIsNotFloat && inflowIsNotFloat)
             {
@@ -90,7 +87,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             parsedOutflow = (decimal)Math.Round(parsedOutflow, 2);
             parsedInflow = (decimal)Math.Round(parsedInflow, 2);
 
-
+            var accountName = row[4];
             var account = _accountService.GetFinancialAccounts(x => x.Name.ToLower() == accountName!.ToString().ToLower()).FirstOrDefault();
 
             int accountId = 0;
@@ -98,14 +95,16 @@ namespace RDS.ExpenseTracker.Business.Helpers
             {
                 var newAccount = new FinancialAccount()
                 {
-                    Name = accountName!.ToString(),
+                    Name = accountName?.ToString() ?? string.Empty,
                     Availability = 0
                 };
                 accountId = _accountService.AddFinancialAccount(newAccount);
             }
 
+            var date = row[0];
             var dateIsSuccessfullyParsed = DateTime.TryParse(date.ToString(), out var parsedDate);
 
+            var reason = row[1];
             var transaction = new Transaction
             {
                 Date = dateIsSuccessfullyParsed ? parsedDate : null,
@@ -117,33 +116,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             return transaction;
         }
 
-        public static DateTime ParseDateFromSheetName(string name)
-        {
-            var index = name.IndexOf('2');
-            var year = int.Parse(name[index..].Trim());
-
-            var monthStr = name[..index].Trim();
-
-            var months = new Dictionary<string, int>
-            {
-                { "gennaio", 1 },
-                { "febbraio", 2 },
-                { "marzo", 3 },
-                { "aprile", 4 },
-                { "maggio", 5 },
-                { "giugno", 6 },
-                { "luglio", 7 },
-                { "agosto", 8 },
-                { "settembre", 9 },
-                { "ottobre", 10 },
-                { "novembre", 11 },
-                { "dicembre", 12 }
-            };
-
-            var month = months[monthStr.ToLower()];
-
-            return new DateTime(year, month, 1);
-        }
+        
         #endregion
 
         #region Public Methods
@@ -171,8 +144,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
                         continue;
                     }
 
-                    var index = tableName.IndexOf('2');
-                    var date = ParseDateFromSheetName(tableName);
+                    var date = Utilities.ParseDateFromSheetName(tableName);
                     var transactions = new List<Transaction>();
                     var transferList = new List<MoneyTransfer>();
 

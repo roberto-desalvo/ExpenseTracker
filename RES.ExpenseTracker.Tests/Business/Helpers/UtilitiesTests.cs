@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Tests.Business.Helpers
 {
-    public class ExcelReaderTests
+    public class UtilitiesTests
     {
         public static IEnumerable<object[]> GetTestData() 
         {
@@ -34,8 +34,7 @@ namespace RDS.ExpenseTracker.Tests.Business.Helpers
         public static void ParseDateFromSheetName_WhenCalled_ShoulParseCorrectly(string text, DateTime expected)
         {
 
-            var result = ExcelReader.ParseDateFromSheetName(text);
-
+            var result = Utilities.ParseDateFromSheetName(text);
             result.Should().Be(expected);
         }
     }
