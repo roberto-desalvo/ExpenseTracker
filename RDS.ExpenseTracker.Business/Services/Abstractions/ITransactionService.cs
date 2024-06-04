@@ -1,0 +1,18 @@
+﻿using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Data.Entities;
+
+namespace RDS.ExpenseTracker.Business.Services.Abstractions
+{
+    public interface ITransactionService
+    {
+        Transaction? GetTransaction(int id);
+        Transaction? GetTransaction(string id);
+        IList<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null);
+        void AddTransaction(Transaction transaction);
+        void UpdateTransaction(Transaction transaction);
+        void DeleteTransaction(int id);
+        void DeleteTransaction(string id);
+        void DeleteTransaction(Transaction transaction);
+        void UpdateCategories();
+    }
+}

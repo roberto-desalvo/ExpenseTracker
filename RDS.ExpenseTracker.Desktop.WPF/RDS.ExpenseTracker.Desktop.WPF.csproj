@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="MaterialDesignColors" Version="3.0.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="1.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RDS.ExpenseTracker.Business\RDS.ExpenseTracker.Business.csproj" />
+    <ProjectReference Include="..\RDS.ExpenseTracker.Data\RDS.ExpenseTracker.Data.csproj" />
+  </ItemGroup>
+
+</Project>
