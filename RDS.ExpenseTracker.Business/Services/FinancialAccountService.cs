@@ -3,6 +3,7 @@ using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
 using RDS.ExpenseTracker.Data.Entities;
+using System.Linq;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
@@ -67,12 +68,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public IList<FinancialAccount> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null)
         {
-            return filter == null
-                ? _context.FinancialAccounts
-                .Select(_mapper.Map<FinancialAccount>)
-                .ToList()
-                : _context.FinancialAccounts
-                .Where(filter)
+            return _context.FinancialAccounts.Where(filter ?? (x => true))
                 .Select(_mapper.Map<FinancialAccount>)
                 .ToList();
         }

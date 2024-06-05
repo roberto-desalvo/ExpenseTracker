@@ -35,10 +35,11 @@ namespace RDS.ExpenseTracker.Desktop.WPF
         }
         private void ConfigureServices(ServiceCollection services)
         {
+            var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             // context
             services.AddDbContext<ExpenseTrackerContext>(options =>
             {
-                options.UseSqlServer("Server=MAIN;Database=ExpenseTracker_Main2;User Id=fantadepo;Password=fantadepo;Trusted_Connection=True;TrustServerCertificate=True;");
+                options.UseSqlServer(connectionString);
             });
 
             // automapper
