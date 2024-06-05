@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dtos\Responses\**" />
+    <Content Remove="Dtos\Responses\**" />
+    <EmbeddedResource Remove="Dtos\Responses\**" />
+    <None Remove="Dtos\Responses\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
@@ -20,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\Responses\" />
+    <Folder Include="Dtos\Requests\" />
   </ItemGroup>
 
   <ItemGroup>

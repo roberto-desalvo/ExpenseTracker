@@ -18,8 +18,6 @@ namespace RDS.ExpenseTracker.Desktop.Mappings
                 .ForMember(x => x.Transaction, opt => opt.MapFrom(src => src));
             CreateMap<FinancialAccount, FinancialAccountViewModel>()
                 .ForMember(x => x.FinancialAccount, opt => opt.MapFrom(src => src));
-            CreateMap<MoneyTransfer, MoneyTransferViewModel>()
-                .ForMember(x => x.MoneyTransfer, opt => opt.MapFrom(src => src));
         }
 
     }

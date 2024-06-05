@@ -30,7 +30,6 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 builder.Services.AddAutoMapper(typeof(ExpenseTrackerApiProfile));
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IFinancialAccountService, FinancialAccountService>();
-builder.Services.AddScoped<IMoneyTransferService, MoneyTransferService>();
 
 
 var app = builder.Build();

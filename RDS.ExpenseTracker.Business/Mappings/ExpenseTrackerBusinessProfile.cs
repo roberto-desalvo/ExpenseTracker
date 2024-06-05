@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace RDS.ExpenseTracker.Business.Helpers
+namespace RDS.ExpenseTracker.Business.Mappings
 {
     public class ExpenseTrackerBusinessProfile : Profile
     {
@@ -23,9 +17,6 @@ namespace RDS.ExpenseTracker.Business.Helpers
             CreateMap<EFinancialAccount, FinancialAccount>();
             CreateMap<FinancialAccount, EFinancialAccount>()
                 .ForMember(x => x.Availability, opt => opt.MapFrom(x => x.Availability));
-
-            CreateMap<EMoneyTransfer, MoneyTransfer>();
-            CreateMap<MoneyTransfer, EMoneyTransfer>();
         }
 
         public class CategoryEnumConverter : IValueResolver<ETransaction, Transaction, CategoryEnum>

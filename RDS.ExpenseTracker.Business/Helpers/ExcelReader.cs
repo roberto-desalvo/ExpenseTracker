@@ -1,58 +1,48 @@
 ﻿using ExcelDataReader;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Identity.Client;
 using RDS.ExpenseTracker.Business.Models;
-using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RDS.ExpenseTracker.Business.Helpers
 {
-    public class ExcelReader : MoneyTransactor
+    public class ExcelReader 
     {
         private readonly IFinancialAccountService _accountService;
-        private readonly IMoneyTransferService _transferService;
         private readonly ITransactionService _transactionService;
+        private readonly ExpenseTrackerContext _context;
 
         #region Constructors
-        public ExcelReader(IFinancialAccountService accountService, IMoneyTransferService transferService, ITransactionService transactionService, ExpenseTrackerContext context)
-            : base(context)
+        public ExcelReader(IFinancialAccountService accountService, ITransactionService transactionService, ExpenseTrackerContext context)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            _transferService = transferService ?? throw new ArgumentNullException(nameof(transferService));
             _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         #endregion
 
         #region Private Methods
-        private MoneyTransfer? GetTransferFromRow(DataRow row)
+        private List<Transaction>? GetTransferTransactionsFromDataRow(DataRow row)
         {
             var transferDate = row[9];
-            var transferName = row[10];
+            var transferName = row[10]?.ToString() ?? string.Empty;
             var transferAmount = row[11];
 
-            var isTransferAmountFloat = decimal.TryParse(transferAmount.ToString(), out var transferAmountFloat);
-            if (!isTransferAmountFloat)
+            var isTransferAmountDecimal = decimal.TryParse(transferAmount.ToString(), out var transferAmountDecimal);
+            if (!isTransferAmountDecimal)
             {
                 return null;
             }
-            transferAmountFloat = (decimal)Math.Round(transferAmountFloat, 2);
+            transferAmountDecimal = (decimal)Math.Round(transferAmountDecimal, 2);
 
             var accounts = _accountService.GetFinancialAccounts();
 
-            FinancialAccount destinationAccount = new();
+            var destinationAccount = new FinancialAccount();
             foreach (var acc in accounts)
             {
-                if (transferName?.ToString().ToLower().Contains(acc.Name.ToLower()) ?? false)
+                if (transferName.ToLower().Contains(acc.Name.ToLower()))
                 {
                     destinationAccount = acc;
                 }
@@ -61,15 +51,31 @@ namespace RDS.ExpenseTracker.Business.Helpers
             var dateIsSuccessfullyParsed = DateTime.TryParse(transferDate.ToString(), out var parsedDate);
             var sellaId = _accountService.GetFinancialAccounts(x => x.Name.ToLower() == "sella").FirstOrDefault()!.Id;
 
-            var moneyTransfer = new MoneyTransfer()
+            var originTransaction = new Transaction
             {
-                Amount = transferAmountFloat,
+                Amount = transferAmountDecimal * -1,
                 Date = dateIsSuccessfullyParsed ? parsedDate : null,
-                DepositId = destinationAccount.Id,
-                WithdrawId = sellaId,
-                Description = transferName?.ToString() ?? string.Empty
+                Description = transferName,
+                Category = CategoryEnum.SpostamentiDenaro,
+                FinancialAccountId = sellaId,
+                FinancialAccountName = "Sella",
+                Id = 0,
+                IsTransfer = true
             };
-            return moneyTransfer;
+
+            var destinationTransaction = new Transaction
+            {
+                Amount = transferAmountDecimal,
+                Date = dateIsSuccessfullyParsed ? parsedDate : null,
+                Description = transferName,
+                Category = CategoryEnum.SpostamentiDenaro,
+                FinancialAccountId = destinationAccount.Id,
+                FinancialAccountName = destinationAccount.Name,
+                Id = 0,
+                IsTransfer = true
+            };
+            
+            return new List<Transaction> { originTransaction, destinationTransaction };
         }
 
         private Transaction? GetTransactionFromDataRow(DataRow row)
@@ -87,8 +93,8 @@ namespace RDS.ExpenseTracker.Business.Helpers
             parsedOutflow = (decimal)Math.Round(parsedOutflow, 2);
             parsedInflow = (decimal)Math.Round(parsedInflow, 2);
 
-            var accountName = row[4];
-            var account = _accountService.GetFinancialAccounts(x => x.Name.ToLower() == accountName!.ToString().ToLower()).FirstOrDefault();
+            var accountName = row[4]?.ToString() ?? string.Empty;
+            var account = _accountService.GetFinancialAccounts(x => x.Name.ToLower() == accountName.ToLower()).FirstOrDefault();
 
             int accountId = 0;
             if (account is null)
@@ -120,7 +126,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
         #endregion
 
         #region Public Methods
-        public IList<Tuple<IList<MoneyTransfer>, IList<Transaction>>> GetTransactionsFromExcel(string path)
+        public IList<Transaction> GetTransactionsFromExcel(string path)
         {
             try
             {
@@ -129,24 +135,17 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 using var reader = ExcelReaderFactory.CreateReader(stream);
                 var dataSet = reader.AsDataSet();
 
-                var finalList = new List<Tuple<IList<MoneyTransfer>, IList<Transaction>>>();
+                var transactions = new List<Transaction>();
 
                 foreach (DataTable dataTable in dataSet.Tables)
                 {
-                    var tableName = dataTable.TableName;
-                    if (tableName.Contains("Back-up") || tableName.Contains("Sheet"))
-                    {
-                        continue;
-                    }
-                    if ((tableName.ToLower() == "maggio 2021") || (tableName.ToLower() == "giugno 2021")
-                        || (tableName.ToLower() == "luglio 2021") || (tableName.ToLower() == "agosto 2021"))
+                    var exceptions =  new string[] { "back-up", "sheet", "maggio 2021", "giugno 2021", "luglio 2021", "agosto 2021" };
+                    if (dataTable.TableName.ToLower().ContainsOne(exceptions))
                     {
                         continue;
                     }
 
-                    var date = Utilities.ParseDateFromSheetName(tableName);
-                    var transactions = new List<Transaction>();
-                    var transferList = new List<MoneyTransfer>();
+                    var currentSheetTransactions = new List<Transaction>();
 
                     foreach (DataRow row in dataTable.Rows)
                     {
@@ -154,54 +153,45 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
                         if (transaction != null)
                         {
-                            if (transaction.Date == null)
-                            {
-                                transaction.Date = date;
-                            };
-                            transactions.Add(transaction);
+                            currentSheetTransactions.Add(transaction);
                         }
 
-                        var transfer = GetTransferFromRow(row);
+                        var transferTransactions = GetTransferTransactionsFromDataRow(row);
 
-                        if (transfer != null)
+                        if (transferTransactions != null)
                         {
-                            if (transfer.Date == null)
-                            {
-                                transfer.Date = date;
-                            };
-                            transferList.Add(transfer);
+                            currentSheetTransactions = currentSheetTransactions.Concat(transferTransactions).ToList();
                         }
                     }
 
-                    var tuple = new Tuple<IList<MoneyTransfer>, IList<Transaction>>(transferList, transactions);
-                    finalList.Add(tuple);
+                    var date = Utilities.ParseDateFromSheetName(dataTable.TableName);
+
+                    foreach(var transaction in currentSheetTransactions)
+                    {
+                        transaction.Date ??= date;
+                    }
+
+                    transactions = transactions.Concat(currentSheetTransactions).ToList();
                 }
 
-                return finalList;
+                return transactions;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex, ex.Message);
-                return new List<Tuple<IList<MoneyTransfer>, IList<Transaction>>>();
+                return new List<Transaction>();
             }
         }
 
-        public void SaveData(IList<Tuple<IList<MoneyTransfer>, IList<Transaction>>> list)
+        public void SaveData(IList<Transaction> transactions)
         {
-            AtomicTransaction(() =>
+            DataHelper.AtomicTransaction(() =>
             {
-                foreach (var tuple in list)
-                {
-                    foreach (var transfer in tuple.Item1)
-                    {
-                        _transferService.AddMoneyTransfer(transfer);
-                    }
-                    foreach (var transaction in tuple.Item2)
-                    {
-                        _transactionService.AddTransaction(transaction);
-                    }
+                foreach (var transaction in transactions)
+                {                    
+                    _transactionService.AddTransaction(transaction);                    
                 }
-            });
+            }, _context);
         }
         #endregion
 
