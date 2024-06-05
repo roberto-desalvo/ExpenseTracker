@@ -2,7 +2,6 @@
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Data.Entities;
 using RDS.ExpenseTrackerApi.Dtos;
-using RDS.ExpenseTrackerApi.Dtos.Requests;
 
 namespace RDS.ExpenseTrackerApi.Helpers
 {
@@ -19,11 +18,6 @@ namespace RDS.ExpenseTrackerApi.Helpers
             CreateMap<FinancialAccount, EFinancialAccount>();
             CreateMap<FinancialAccount, FinancialAccountDto>();
             CreateMap<FinancialAccountDto, FinancialAccount>();
-
-            CreateMap<EMoneyTransfer, MoneyTransfer>();
-            CreateMap<MoneyTransfer, EMoneyTransfer>();
-            CreateMap<MoneyTransfer, MoneyTransferRequestDto>();
-            CreateMap<MoneyTransferRequestDto, MoneyTransfer>();
         }
     }
 }

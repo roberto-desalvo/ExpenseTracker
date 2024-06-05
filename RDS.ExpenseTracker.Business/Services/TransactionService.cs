@@ -7,13 +7,13 @@ using RDS.ExpenseTracker.Data.Entities;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
-    public class TransactionService : MoneyTransactor, ITransactionService
+    public class TransactionService : ITransactionService
     {
         private readonly IMapper _mapper;
         private readonly ExpenseTrackerContext _context;
         private readonly IFinancialAccountService _accountService;
 
-        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService) : base(context)
+        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService) 
         {
             _accountService = accountService;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

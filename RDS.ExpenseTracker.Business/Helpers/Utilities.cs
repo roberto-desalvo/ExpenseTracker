@@ -34,5 +34,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
             return new DateTime(year, month, 1);
         }
+
+        
     }
 }

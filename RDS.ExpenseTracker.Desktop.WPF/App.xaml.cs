@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RDS.ExpenseTracker.Business.Helpers;
+using RDS.ExpenseTracker.Business.Mappings;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -48,7 +49,6 @@ namespace RDS.ExpenseTracker.Desktop.WPF
 
             // services
             services.AddScoped<IFinancialAccountService, FinancialAccountService>();
-            services.AddScoped<IMoneyTransferService, MoneyTransferService>();
             services.AddScoped<ITransactionService, TransactionService>();
 
             // utilities
