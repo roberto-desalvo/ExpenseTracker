@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using RDS.ExpenseTracker.Business.Helpers.Abstractions;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -53,11 +54,11 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 var accounts = _accountService.GetFinancialAccounts();
 
                 var destinationAccount = new FinancialAccount();
-                foreach (var acc in accounts)
+                foreach (var account in accounts)
                 {
-                    if (rowModel.TransactionDescription.ToLower().Contains(acc.Name.ToLower()))
+                    if (rowModel.TransactionDescription.ToLower().Contains(account.Name.ToLower()))
                     {
-                        destinationAccount = acc;
+                        destinationAccount = account;
                     }
                 }
 
@@ -133,6 +134,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
                     transactions = transactions.Concat(currentSheetTransactions).ToList();
                 }
 
+                CategoryHelper.UpdateCategories(transactions);
                 return transactions;
             }
             catch (Exception ex)
