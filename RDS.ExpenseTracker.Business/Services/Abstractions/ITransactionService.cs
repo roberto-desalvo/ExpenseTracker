@@ -7,12 +7,13 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
     {
         Transaction? GetTransaction(int id);
         Transaction? GetTransaction(string id);
-        IList<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null);
-        void AddTransaction(Transaction transaction);
+        IEnumerable<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null);
+        void AddTransaction(Transaction transaction, bool saveChanges);
         void UpdateTransaction(Transaction transaction);
         void DeleteTransaction(int id);
         void DeleteTransaction(string id);
         void DeleteTransaction(Transaction transaction);
         void UpdateCategories();
+        void AddTransactions(IEnumerable<Transaction> transactions);
     }
 }
