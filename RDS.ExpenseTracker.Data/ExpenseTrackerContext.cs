@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols;
 using RDS.ExpenseTracker.Data.Entities;
 
 namespace RDS.ExpenseTracker.Data
@@ -20,29 +21,13 @@ namespace RDS.ExpenseTracker.Data
         }
         #endregion
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server=MAIN;Database=ExpenseTracker_Main2;User Id=fantadepo;Password=fantadepo;Trusted_Connection=True;TrustServerCertificate=True;");
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<EFinancialAccount>()
                 .HasMany(x => x.Transactions)
                 .WithOne(x => x.FinancialAccount)
                 .HasForeignKey(x => x.FinancialAccountId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-
-            //modelBuilder.Entity<ETransaction>(e => e.ToTable(nameof(Transactions), 
-            //    t => t.HasTrigger("TR_Update_Availability_AfterInsert")));
-
-            //modelBuilder.Entity<ETransaction>(e => e.ToTable(nameof(Transactions), 
-            //    t => t.HasTrigger("TR_Update_Availability_AfterUpdate")));
-
-            //modelBuilder.Entity<ETransaction>(e => e.ToTable(nameof(Transactions), 
-            //    t => t.HasTrigger("TR_Update_Availability_AfterDelete")));
-                
+            .OnDelete(DeleteBehavior.Restrict);                
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
