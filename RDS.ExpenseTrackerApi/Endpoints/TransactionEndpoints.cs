@@ -28,7 +28,7 @@ namespace RDS.ExpenseTrackerApi.Endpoints
             app.MapPost("/Transaction", IResult (TransactionDto dto, ITransactionService service, IMapper mapper) =>
             {
                 var Transaction = mapper.Map<Transaction>(dto);
-                return SafeInvoker.SafeInvoke(() => service.AddTransaction(Transaction))  
+                return SafeInvoker.SafeInvoke(() => service.AddTransaction(Transaction, true))  
                 ?
                 TypedResults.Ok() : TypedResults.Problem();
             })

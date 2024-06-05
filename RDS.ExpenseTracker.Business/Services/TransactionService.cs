@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using RDS.ExpenseTracker.Business.Helpers;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -20,7 +19,16 @@ namespace RDS.ExpenseTracker.Business.Services
             _context = context;
         }
 
-        public void AddTransaction(Transaction transaction)
+        public void AddTransactions(IEnumerable<Transaction> transactions)
+        {
+            foreach(var transaction in transactions)
+            {
+                AddTransaction(transaction, false);                
+            }
+            _context.SaveChanges();
+        }
+
+        public void AddTransaction(Transaction transaction, bool saveChanges)
         {
             transaction.Id = 0;
             var entity = _mapper.Map<ETransaction>(transaction);
@@ -30,7 +38,11 @@ namespace RDS.ExpenseTracker.Business.Services
                 _context.Transactions.Add(entity);
                 var account = _context.FinancialAccounts.Where(x => x.Id == entity.FinancialAccountId).FirstOrDefault() ?? throw new Exception();
                 account.Availability += entity.Amount;
-                _context.SaveChanges();
+
+                if (saveChanges)
+                {
+                    _context.SaveChanges();
+                }
             }
         }
 
@@ -80,7 +92,7 @@ namespace RDS.ExpenseTracker.Business.Services
             return _mapper.Map<Transaction?>(entity);
         }
 
-        public IList<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null)
+        public IEnumerable<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null)
         {
             var entities = filter == null ? _context.Transactions : _context.Transactions.Where(filter);
             var transactions = _mapper.Map<IEnumerable<Transaction>>(entities).ToList();

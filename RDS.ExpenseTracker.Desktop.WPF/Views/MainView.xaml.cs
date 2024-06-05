@@ -21,8 +21,8 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Views
     /// </summary>
     public partial class MainView : Window
     {
-        private readonly ExcelReader _excelReader;
-        public MainView(TransactionGridControl transactionGrid, AccountsControl accounts, ExcelReader excelReader)
+        private readonly ICustomExcelReader _excelReader;
+        public MainView(TransactionGridControl transactionGrid, AccountsControl accounts, ICustomExcelReader excelReader)
         {
             _excelReader = excelReader;
             InitializeComponent();

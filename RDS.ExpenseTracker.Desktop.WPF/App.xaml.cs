@@ -50,9 +50,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF
             // services
             services.AddScoped<IFinancialAccountService, FinancialAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
-
-            // utilities
-            services.AddSingleton<ExcelReader>();
+            services.AddScoped<ICustomExcelReader, CustomExcelReader>();
 
             // views
             services.AddSingleton<MainView>();

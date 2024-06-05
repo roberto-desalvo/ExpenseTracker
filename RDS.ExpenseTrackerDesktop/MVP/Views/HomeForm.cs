@@ -52,7 +52,7 @@ namespace RDS.ExpenseTrackerDesktop
             var context = GetContext();
             var accountService = new FinancialAccountService(mapper, context);
             var transactionService = new TransactionService(mapper, context, accountService);
-            var excelReader = new ExcelReader(accountService, transactionService, context);
+            var excelReader = new CustomExcelReader(accountService, transactionService, context);
 
             var list = excelReader.GetTransactionsFromExcel(path);
 

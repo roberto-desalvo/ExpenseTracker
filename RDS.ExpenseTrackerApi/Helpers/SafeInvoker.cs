@@ -1,4 +1,6 @@
-﻿namespace RDS.ExpenseTrackerApi.Helpers
+﻿using System.Diagnostics;
+
+namespace RDS.ExpenseTrackerApi.Helpers
 {
     public static class SafeInvoker
     {
@@ -8,9 +10,10 @@
             {
                 action();
                 return true;
-            }catch (Exception ex)
+            }
+            catch(Exception ex)  
             {
-                // log error
+                Trace.WriteLine(ex, ex.Message);
                 return false;
             }
         }
