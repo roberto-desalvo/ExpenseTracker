@@ -1,6 +1,6 @@
 ﻿using RDS.ExpenseTracker.Business.Models;
 
-namespace RDS.ExpenseTracker.Business.Helpers
+namespace RDS.ExpenseTracker.Business.Helpers.Abstractions
 {
     public interface ICustomExcelReader
     {

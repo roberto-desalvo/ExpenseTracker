@@ -41,20 +41,16 @@ namespace RDS.ExpenseTracker.Business.Services
             }
         }
 
-        public decimal GetAvailability(int accountId)
-        {
-            var accountEntity = _context.FinancialAccounts.FirstOrDefault(x => x.Id == accountId);
-            if (accountEntity == null)
-            {
-                return -1;
-            }
-            return accountEntity.Availability;
-        }
-
         public decimal GetAvailability(string accountId)
         {
             var parsedId = int.Parse(accountId);
             return GetAvailability(parsedId);
+        }
+
+        public decimal GetAvailability(int accountId)
+        {
+            var accountEntity = _context.FinancialAccounts.FirstOrDefault(x => x.Id == accountId);            
+            return accountEntity?.Availability ?? -1;
         }
 
         public FinancialAccount? GetFinancialAccount(string id)
@@ -91,10 +87,6 @@ namespace RDS.ExpenseTracker.Business.Services
 
             accountEntity.Availability += amount;
             accountEntity.Availability = (decimal)Math.Round(accountEntity.Availability, 2);
-            //if (accountEntity.Availability < 0)
-            //{
-            //    return false;
-            //}
 
             _context.SaveChanges();
             return true;
