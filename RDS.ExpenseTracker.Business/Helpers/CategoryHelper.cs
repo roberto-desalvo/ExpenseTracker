@@ -50,5 +50,17 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 }
             }
         }
+
+        public static CategoryEnum GetCategory(string description)
+        {
+            foreach (var category in CategoryMap)
+            {
+                if (description.Contains(category.Key))
+                {
+                    return category.Value;
+                }
+            }
+            return CategoryEnum.Altro;
+        }
     }
 }
