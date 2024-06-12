@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.Views
 {
@@ -58,11 +59,14 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Views
             if (!list.Any())
             {
                 MessageBox.Show("Non sono stati recuperati dati dal file excel");
+                return;
             }
 
             try
             {
+
                 _excelReader.SaveData(list);
+
                 MessageBox.Show("Excel importato correttamente");
             }
             catch (Exception)

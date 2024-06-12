@@ -12,10 +12,10 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         FinancialAccount? GetFinancialAccount(string id);
         FinancialAccount? GetFinancialAccount(int id);
         IList<FinancialAccount> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null);
-        bool UpdateAvailability(string accountId, decimal amount);
-        bool UpdateAvailability(int accountId, decimal amount);
+        bool UpdateAvailability(string accountId, int amount, bool saveChanges);
+        bool UpdateAvailability(int accountId, int amount, bool saveChanges);
         decimal GetAvailability(string accountId);
         decimal GetAvailability(int accountId);
-
+        void UpdateAvailabilities(IEnumerable<Transaction> transactions);
     }
 }

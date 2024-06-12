@@ -73,25 +73,40 @@ namespace RDS.ExpenseTracker.Business.Services
                 .ToList();
         }
 
-        public bool UpdateAvailability(int accountId, decimal amount)
+        public void UpdateAvailabilities(IEnumerable<Transaction> transactions)
+        {
+            var accountIds = transactions.Select(x => x.FinancialAccountId).Distinct();
+
+            foreach(var id in accountIds)
+            {
+                var sum = transactions.Where(x => x.FinancialAccountId == id).Select(x => x.Amount).Sum();
+                UpdateAvailability(id, sum, false);
+            }
+            _context.SaveChanges();
+        }
+
+        public bool UpdateAvailability(string accountId, int amount, bool saveChanges)
+        {
+            var parsedId = int.Parse(accountId);
+            return UpdateAvailability(parsedId, amount, saveChanges);
+        }
+
+        public bool UpdateAvailability(int accountId, int amount, bool saveChanges)
         {
             var accountEntity = _context.FinancialAccounts.FirstOrDefault(x => x.Id == accountId);
             if (accountEntity == null)
             {
                 return false;
             }
-
+            
             accountEntity.Availability += amount;
-            accountEntity.Availability = (decimal)Math.Round(accountEntity.Availability, 2);
-
-            _context.SaveChanges();
+            if (saveChanges)
+            {
+                _context.SaveChanges();
+            }
+            
+            
             return true;
-        }
-
-        public bool UpdateAvailability(string accountId, decimal amount)
-        {
-            var parsedId = int.Parse(accountId);
-            return UpdateAvailability(parsedId, amount);
         }
 
         public void UpdateFinancialAccount(FinancialAccount account)

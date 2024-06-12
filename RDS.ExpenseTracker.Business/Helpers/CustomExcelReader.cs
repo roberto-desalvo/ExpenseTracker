@@ -49,16 +49,28 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 transactions.Add(transaction);
             }
 
-            if (rowModel.TransferAmount < 0 && !string.IsNullOrWhiteSpace(rowModel.TransactionDescription))
+            if (rowModel.TransferAmount != 0 && !string.IsNullOrWhiteSpace(rowModel.TransferDescription))
             {
                 var accounts = _accountService.GetFinancialAccounts();
 
                 var destinationAccount = new FinancialAccount();
                 foreach (var account in accounts)
                 {
-                    if (rowModel.TransactionDescription.ToLower().Contains(account.Name.ToLower()))
+                    if (rowModel.TransferDescription.ToLower().Contains(account.Name.ToLower()))
                     {
                         destinationAccount = account;
+                    }
+                }
+
+                if (destinationAccount.Id == 0)
+                {
+                    if (rowModel.TransferDescription.ToLower().Contains("hype"))
+                    {
+                        destinationAccount.Name = "Hype";
+                    }
+                    else if (rowModel.TransferDescription.ToLower().Contains("satispay"))
+                    {
+                        destinationAccount.Name = "Satispay";
                     }
                 }
 
@@ -68,7 +80,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 {
                     Amount = rowModel.TransferAmount * -1,
                     Date = rowModel.TransferDate,
-                    Description = rowModel.TransactionDescription,
+                    Description = rowModel.TransferDescription,
                     Category = CategoryEnum.SpostamentiDenaro,
                     FinancialAccountId = sellaAccount?.Id ?? 0,
                     FinancialAccountName = "Sella",
@@ -80,7 +92,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 {
                     Amount = rowModel.TransferAmount,
                     Date = rowModel.TransferDate,
-                    Description = rowModel.TransactionDescription,
+                    Description = rowModel.TransferDescription,
                     Category = CategoryEnum.SpostamentiDenaro,
                     FinancialAccountId = destinationAccount.Id,
                     FinancialAccountName = destinationAccount.Name,
@@ -121,15 +133,18 @@ namespace RDS.ExpenseTracker.Business.Helpers
                     foreach (DataRow row in dataTable.Rows)
                     {
                         var currentRowTransactions = GetTransactionsFromRow(row);
-                        currentSheetTransactions = currentSheetTransactions.Concat(currentRowTransactions);
+                        currentSheetTransactions = currentSheetTransactions.Concat(currentRowTransactions).ToList();
                     }
 
                     var date = ExcelReaderUtilities.ParseDateFromSheetName(dataTable.TableName);
 
                     foreach (var transaction in currentSheetTransactions)
                     {
-                        transaction.Date ??= date;
+                        var registeredDate = transaction.Date;
+                        transaction.Date = (registeredDate == null) ? date : new DateTime(date.Year, registeredDate.Value.Month, registeredDate.Value.Day);
                     }
+
+                    //SaveData(currentSheetTransactions);
 
                     transactions = transactions.Concat(currentSheetTransactions).ToList();
                 }
@@ -146,27 +161,24 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
         public void SaveData(IEnumerable<Transaction> transactions)
         {
-            DataHelper.AtomicTransaction(() =>
-            {
-                foreach(var transaction in transactions)
+            
+                foreach (var transaction in transactions)
                 {
-                    if(transaction.FinancialAccountId <= 0)
+                    if (transaction.FinancialAccountId <= 0)
                     {
-                        var newAccount = new FinancialAccount
+                        var account = _accountService.GetFinancialAccounts(x => x.Name.ToLowerInvariant() == transaction.FinancialAccountName.ToLowerInvariant()).FirstOrDefault();
+                        if (account != null)
                         {
-                            Id = 0,
-                            Name = transaction.FinancialAccountName,
-                            Availability = 0
-                        };
+                            transaction.FinancialAccountId = account.Id;
+                            continue;
+                        }
 
-                        var newAccountId = _accountService.AddFinancialAccount(newAccount);
-
+                        var newAccountId = _accountService.AddFinancialAccount(new FinancialAccount { Name = transaction.FinancialAccountName });
                         transaction.FinancialAccountId = newAccountId;
                     }
                 }
                 _transactionService.AddTransactions(transactions);
-            }, 
-            _context);
+                _accountService.UpdateAvailabilities(transactions);
         }
         #endregion
 

@@ -23,7 +23,7 @@ namespace RDS.ExpenseTracker.Business.Services
         {
             foreach(var transaction in transactions)
             {
-                AddTransaction(transaction, false);                
+                AddTransaction(transaction, false);
             }
             _context.SaveChanges();
         }
@@ -36,8 +36,6 @@ namespace RDS.ExpenseTracker.Business.Services
             if (entity != null)
             {
                 _context.Transactions.Add(entity);
-                var account = _context.FinancialAccounts.Where(x => x.Id == entity.FinancialAccountId).FirstOrDefault() ?? throw new Exception();
-                account.Availability += entity.Amount;
 
                 if (saveChanges)
                 {
@@ -58,25 +56,15 @@ namespace RDS.ExpenseTracker.Business.Services
             var entity = _context.Transactions.FirstOrDefault(x => x.Id == id);
             if (entity != null)
             {
-
                 _context.Transactions.Remove(entity);
-                var account = _context.FinancialAccounts.Where(x => x.Id == entity.FinancialAccountId).FirstOrDefault() ?? throw new Exception();
-                account.Availability -= entity.Amount;
-
                 _context.SaveChanges();
-
             }
         }
 
         public void DeleteTransaction(Transaction transaction)
         {
-
             _context.Transactions.Remove(_mapper.Map<ETransaction>(transaction));
-            var account = _context.FinancialAccounts.Where(x => x.Id == transaction.FinancialAccountId).FirstOrDefault() ?? throw new Exception();
-            account.Availability -= transaction.Amount;
-
             _context.SaveChanges();
-
         }
 
         public Transaction? GetTransaction(string id)

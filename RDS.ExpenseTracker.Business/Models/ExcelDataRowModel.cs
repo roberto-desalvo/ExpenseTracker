@@ -10,10 +10,10 @@ namespace RDS.ExpenseTracker.Business.Models
     {
         public DateTime? TransactionDate { get; set; }
         public string TransactionDescription { get; set; } = string.Empty;
-        public decimal TransactionAmount { get; set; }
+        public int TransactionAmount { get; set; }
         public string TransactionAccountName { get; set; } = string.Empty;
         public DateTime? TransferDate { get; set; }
         public string TransferDescription { get; set; } = string.Empty;
-        public decimal TransferAmount { get; set; }
+        public int TransferAmount { get; set; }
     }
 }
