@@ -12,14 +12,16 @@ namespace RDS.ExpenseTracker.Business.Helpers
     {
         private readonly IFinancialAccountService _accountService;
         private readonly ITransactionService _transactionService;
+        private readonly ICategoryService _categoryService;
         private readonly string[] sheetNameExceptions;
 
         #region Constructors
-        public CustomExcelReader(IFinancialAccountService accountService, ITransactionService transactionService)
+        public CustomExcelReader(IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
-            sheetNameExceptions = new[]{ "back-up", "sheet", "maggio 2021", "giugno 2021", "luglio 2021", "agosto 2021" };
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            sheetNameExceptions = new[] { "back-up", "sheet", "maggio 2021", "giugno 2021", "luglio 2021", "agosto 2021" };
         }
         #endregion
 
@@ -71,6 +73,31 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 }
             }
         }
+
+        private void AssignCategories(IEnumerable<Transaction> transactions)
+        {
+            var categories = _categoryService.GetCategories().OrderBy(x => x.Priority, Comparer<int>.Default);
+
+            foreach(var transaction in transactions)
+            {
+                if(transaction.CategoryName == "SpostamentiDenaro")
+                {
+                    var transferCategory = categories.FirstOrDefault(x => x.Name.Contains("SpostamentiDenaro"));
+                    transaction.CategoryId = transferCategory?.Id ?? 0;
+                    continue;
+                }
+
+                foreach(var category in categories)
+                {
+                    if (transaction.Description.ToLower().ContainsOne(category.Tags.Select(x =>x.ToLower().Trim()).ToArray()))
+                    {
+                        transaction.CategoryId = category?.Id ?? 0;
+                        transaction.CategoryName = category?.Name ?? string.Empty;
+                        continue;
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -98,9 +125,12 @@ namespace RDS.ExpenseTracker.Business.Helpers
         public void SaveData(IEnumerable<Transaction> transactions)
         {
             AssignCreateFinancialAccount(transactions);
+            AssignCategories(transactions);
+
             _transactionService.AddTransactions(transactions);
             _accountService.UpdateAvailabilities(transactions);
-        }        
+        }
+        
         #endregion
     }
 }

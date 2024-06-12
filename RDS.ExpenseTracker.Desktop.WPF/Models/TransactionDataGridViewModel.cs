@@ -14,6 +14,6 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Models
         public int Amount { get; set; }
         public string AccountName { get; set; }
         public string Description { get; set; }
-        public CategoryEnum Category { get; set; }
+        public string Category { get; set; }
     }
 }

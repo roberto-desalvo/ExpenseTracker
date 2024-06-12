@@ -8,6 +8,18 @@ namespace RDS.ExpenseTracker.Business.Helpers
 {
     public static class Utilities
     {
+        public static bool ContainsOne(this string str, params string[] compare)
+        {
+            foreach (var s in compare)
+            {
+                if (str.Contains(s))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         internal static decimal? ParseToDecimal(this object? obj)
         {
             if (obj == null)

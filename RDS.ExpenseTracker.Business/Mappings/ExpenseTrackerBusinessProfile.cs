@@ -9,26 +9,19 @@ namespace RDS.ExpenseTracker.Business.Mappings
         public ExpenseTrackerBusinessProfile()
         {
             CreateMap<ETransaction, Transaction>()
-                .ForMember(x => x.Category, opt => opt.MapFrom(x => x.Category.ToString()));
+                .ForMember(x => x.CategoryName, opt => opt.MapFrom(x => x.Category.Name));
 
             CreateMap<Transaction, ETransaction>()
-                .ForMember(x => x.Category, opt => opt.MapFrom(x => x.Category.ToString()));
+                .ForPath(x => x.Category.Name, opt => opt.MapFrom(x => x.CategoryName));
 
             CreateMap<EFinancialAccount, FinancialAccount>();
-            CreateMap<FinancialAccount, EFinancialAccount>()
-                .ForMember(x => x.Availability, opt => opt.MapFrom(x => x.Availability));
-        }
+            CreateMap<FinancialAccount, EFinancialAccount>();
 
-        public class CategoryEnumConverter : IValueResolver<ETransaction, Transaction, CategoryEnum>
-        {
-            public CategoryEnum Resolve(ETransaction source, Transaction destination, CategoryEnum destMember, ResolutionContext context)
-            {
-                if (Enum.TryParse(typeof(CategoryEnum), source.Category, out var parsedResult))
-                {
-                    return (CategoryEnum)parsedResult;
-                }
-                return CategoryEnum.Altro;
-            }
+            CreateMap<ECategory, Category>()
+                .ForMember(x => x.Tags, opt => opt.MapFrom(src => src.Tags.Split(';', StringSplitOptions.None)));
+
+            CreateMap<Category, ECategory>()
+                .ForMember(x => x.Tags, opt => opt.MapFrom(src => string.Join(';',src.Tags)));
         }
     }
 }

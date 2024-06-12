@@ -51,10 +51,8 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Date = model.TransactionDate,
                 Description = model.TransactionDescription,
                 FinancialAccountName = model.TransactionAccountName,
-                FinancialAccountId = 0,
-                Id = 0,
                 IsTransfer = false,
-                Category = CategoryHelper.GetCategory(model.TransactionDescription)
+                CategoryName = ""
             };
         }
 
@@ -65,10 +63,8 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Amount = model.TransferAmount * -1,
                 Date = model.TransferDate,
                 Description = model.TransferDescription,
-                Category = CategoryEnum.SpostamentiDenaro,
-                FinancialAccountId = 0,
+                CategoryName = "SpostamentiDenaro",
                 FinancialAccountName = "Sella",
-                Id = 0,
                 IsTransfer = true
             };
         }
@@ -81,10 +77,8 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Amount = rowModel.TransferAmount,
                 Date = rowModel.TransferDate,
                 Description = rowModel.TransferDescription,
-                Category = CategoryEnum.SpostamentiDenaro,
-                FinancialAccountId = 0,
+                CategoryName = "SpostamentiDenaro",
                 FinancialAccountName = accountName,
-                Id = 0,
                 IsTransfer = true
             };
         }
