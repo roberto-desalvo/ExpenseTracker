@@ -11,21 +11,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
 {
     public static class ExcelReaderUtilities
     {
-        public static Dictionary<string, int> Months = new Dictionary<string, int>
-            {
-                { "gennaio", 1 },
-                { "febbraio", 2 },
-                { "marzo", 3 },
-                { "aprile", 4 },
-                { "maggio", 5 },
-                { "giugno", 6 },
-                { "luglio", 7 },
-                { "agosto", 8 },
-                { "settembre", 9 },
-                { "ottobre", 10 },
-                { "novembre", 11 },
-                { "dicembre", 12 }
-            };
+        private static readonly string[] months = { "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre" };
 
         public static DateTime ParseDateFromSheetName(string name)
         {
@@ -33,15 +19,15 @@ namespace RDS.ExpenseTracker.Business.Helpers
             var year = int.Parse(name[index..].Trim());
             var monthStr = name[..index].Trim().ToLower();
 
-            var month = Months[monthStr];
+            var month = Array.IndexOf(months, monthStr) + 1;
 
             return new DateTime(year, month, 1);
         }
 
         public static ExcelDataRowModel ToExcelDataRowModel(this DataRow dataRow)
         {
-            var transactionOutflow = DecimalToInt(dataRow[2].ParseToDecimal()) ?? 0;
-            var transactionInflow = DecimalToInt(dataRow[3].ParseToDecimal()) ?? 0;
+            var transactionOutflow = Utilities.CubedDecimalToInt(dataRow[2].ParseToDecimal()) ?? 0;
+            var transactionInflow = Utilities.CubedDecimalToInt(dataRow[3].ParseToDecimal()) ?? 0;
 
             var model = new ExcelDataRowModel
             {
@@ -51,47 +37,62 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 TransactionAccountName = dataRow[4]?.ToString() ?? string.Empty,
                 TransferDate = dataRow[9].ParseToDateTime(),
                 TransferDescription = dataRow[10]?.ToString() ?? string.Empty,
-                TransferAmount = DecimalToInt(dataRow[11].ParseToDecimal()) ?? 0
-            };            
+                TransferAmount = Utilities.CubedDecimalToInt(dataRow[11].ParseToDecimal()) ?? 0
+            };
 
             return model;
         }
 
-        internal static decimal? ParseToDecimal(this object? obj)
+        public static Transaction GetStandardTransaction(this ExcelDataRowModel model)
         {
-            if (obj == null)
+            return new Transaction
             {
-                return null;
-            }
-            var parsed = decimal.TryParse(obj.ToString(), out var parsedObj);
-
-            return parsed ? parsedObj : null;
+                Amount = model.TransactionAmount,
+                Date = model.TransactionDate,
+                Description = model.TransactionDescription,
+                FinancialAccountName = model.TransactionAccountName,
+                FinancialAccountId = 0,
+                Id = 0,
+                IsTransfer = false,
+                Category = CategoryHelper.GetCategory(model.TransactionDescription)
+            };
         }
 
-        internal static DateTime? ParseToDateTime(this object? data)
+        public static Transaction GetOutgoingTransfer(this ExcelDataRowModel model)
         {
-            if (data == null)
-            { 
-                return null; 
-            }
-            var parsed = DateTime.TryParse(data.ToString(), out var parsedData);
-
-            return parsed ? parsedData : null;
-        }
-
-        private static int? DecimalToInt(decimal? value)
-        {
-            if(value == null)
+            return new Transaction
             {
-                return null;
-            }
-            var result = (int)(value * 100);
-            return result;
+                Amount = model.TransferAmount * -1,
+                Date = model.TransferDate,
+                Description = model.TransferDescription,
+                Category = CategoryEnum.SpostamentiDenaro,
+                FinancialAccountId = 0,
+                FinancialAccountName = "Sella",
+                Id = 0,
+                IsTransfer = true
+            };
         }
 
-        public static bool IsNullOrZero(this int? num)
+        public static Transaction GetIngoingTransfer(this ExcelDataRowModel rowModel)
         {
-            return num == null || num == 0;
+            var accountName = rowModel.TransferDescription.ToLower().Contains("hype") ? "Hype" : rowModel.TransferDescription.ToLower().Contains("satispay") ? "Satispay" : string.Empty;
+            return new Transaction
+            {
+                Amount = rowModel.TransferAmount,
+                Date = rowModel.TransferDate,
+                Description = rowModel.TransferDescription,
+                Category = CategoryEnum.SpostamentiDenaro,
+                FinancialAccountId = 0,
+                FinancialAccountName = accountName,
+                Id = 0,
+                IsTransfer = true
+            };
+        }
+
+        public static void AssignDateIfMissing(Transaction transaction, DateTime defaultDate)
+        {
+            var registeredDate = transaction.Date;
+            transaction.Date = (registeredDate == null) ? defaultDate : new DateTime(defaultDate.Year, registeredDate.Value.Month, registeredDate.Value.Day);
         }
     }
 }
