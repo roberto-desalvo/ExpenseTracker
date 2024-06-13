@@ -9,10 +9,10 @@ namespace RDS.ExpenseTracker.Business.Mappings
         public ExpenseTrackerBusinessProfile()
         {
             CreateMap<ETransaction, Transaction>()
-                .ForMember(x => x.CategoryName, opt => opt.MapFrom(x => x.Category.Name));
+                .ForMember(x => x.CategoryName, opt => opt.MapFrom(x => x.Category.Name))
+                .ForMember(x => x.FinancialAccountName, opt => opt.MapFrom(x => x.FinancialAccount.Name));
 
-            CreateMap<Transaction, ETransaction>()
-                .ForPath(x => x.Category.Name, opt => opt.MapFrom(x => x.CategoryName));
+            CreateMap<Transaction, ETransaction>();
 
             CreateMap<EFinancialAccount, FinancialAccount>();
             CreateMap<FinancialAccount, EFinancialAccount>();

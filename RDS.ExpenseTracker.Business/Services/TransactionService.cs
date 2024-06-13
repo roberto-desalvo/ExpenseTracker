@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -11,12 +12,14 @@ namespace RDS.ExpenseTracker.Business.Services
         private readonly IMapper _mapper;
         private readonly ExpenseTrackerContext _context;
         private readonly IFinancialAccountService _accountService;
+        private readonly ICategoryService _categoryService;
 
-        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService) 
+        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService, ICategoryService categoryService) 
         {
-            _accountService = accountService;
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public void AddTransactions(IEnumerable<Transaction> transactions)
@@ -80,17 +83,13 @@ namespace RDS.ExpenseTracker.Business.Services
             return _mapper.Map<Transaction?>(entity);
         }
 
-        public IEnumerable<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null)
+        public IEnumerable<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null, bool lazy = true)
         {
-            var entities = filter == null ? _context.Transactions : _context.Transactions.Where(filter);
-            var transactions = _mapper.Map<IEnumerable<Transaction>>(entities).ToList();
-            var accounts = _accountService.GetFinancialAccounts();
+            Func<ETransaction, bool> all = x => true;
+            var entities = lazy ? _context.Transactions.Where(filter ?? all) : _context.Transactions.Include(x => x.FinancialAccount).Include(x => x.Category).Where(filter ?? all);
+                
 
-            foreach(var transaction in transactions)
-            {
-                transaction.FinancialAccountName = accounts.Where(x => x.Id == transaction.FinancialAccountId).FirstOrDefault()?.Name ?? string.Empty;
-            }
-            return transactions;
+            return _mapper.Map<IEnumerable<Transaction>>(entities).ToList();
         }        
 
         public void UpdateTransaction(Transaction transaction)

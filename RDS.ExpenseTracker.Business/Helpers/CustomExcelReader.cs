@@ -55,7 +55,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             });
         }
 
-        private void AssignCreateFinancialAccount(IEnumerable<Transaction> transactions)
+        private IEnumerable<Transaction> AssignCreateFinancialAccount(IEnumerable<Transaction> transactions)
         {
             foreach (var transaction in transactions)
             {
@@ -65,25 +65,29 @@ namespace RDS.ExpenseTracker.Business.Helpers
                     if (account != null)
                     {
                         transaction.FinancialAccountId = account.Id;
+                        yield return transaction;
                         continue;
                     }
 
                     var newAccountId = _accountService.AddFinancialAccount(new FinancialAccount { Name = transaction.FinancialAccountName });
                     transaction.FinancialAccountId = newAccountId;
+                    yield return transaction;
                 }
             }
         }
 
-        private void AssignCategories(IEnumerable<Transaction> transactions)
+        private IEnumerable<Transaction> AssignCategories(IEnumerable<Transaction> transactions)
         {
             var categories = _categoryService.GetCategories().OrderBy(x => x.Priority, Comparer<int>.Default);
+            var defaultCategory = categories.FirstOrDefault(x => x.Name.Contains("Altro"));
+            var transferCategory = categories.FirstOrDefault(x => x.Name.Contains("SpostamentiDenaro"));
 
-            foreach(var transaction in transactions)
+            foreach (var transaction in transactions)
             {
-                if(transaction.CategoryName == "SpostamentiDenaro")
+                if(transaction.CategoryName == "SpostamentiDenaro" && transferCategory != null)
                 {
-                    var transferCategory = categories.FirstOrDefault(x => x.Name.Contains("SpostamentiDenaro"));
-                    transaction.CategoryId = transferCategory?.Id ?? 0;
+                    transaction.CategoryId = transferCategory.Id;
+                    yield return transaction;
                     continue;
                 }
 
@@ -91,11 +95,16 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 {
                     if (transaction.Description.ToLower().ContainsOne(category.Tags.Select(x =>x.ToLower().Trim()).ToArray()))
                     {
-                        transaction.CategoryId = category?.Id ?? 0;
-                        transaction.CategoryName = category?.Name ?? string.Empty;
-                        continue;
+                        transaction.CategoryId = category.Id;
+                        yield return transaction;
+                        break;
                     }
                 }
+                if(transaction.CategoryId == 0)
+                {
+                    transaction.CategoryId = defaultCategory.Id;
+                    yield return transaction;
+                }                
             }
         }
         #endregion
@@ -124,11 +133,12 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
         public void SaveData(IEnumerable<Transaction> transactions)
         {
-            AssignCreateFinancialAccount(transactions);
-            AssignCategories(transactions);
+            transactions = AssignCreateFinancialAccount(transactions);
+            transactions = AssignCategories(transactions);
 
-            _transactionService.AddTransactions(transactions);
-            _accountService.UpdateAvailabilities(transactions);
+            var readyToSave = transactions.ToList();
+            _transactionService.AddTransactions(readyToSave);
+            _accountService.UpdateAvailabilities(readyToSave);
         }
         
         #endregion

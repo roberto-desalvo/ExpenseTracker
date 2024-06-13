@@ -2,6 +2,7 @@
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Data.Entities;
 using RDS.ExpenseTracker.Desktop.WPF.Models;
+using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
