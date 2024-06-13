@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RDS.ExpenseTracker.Data
+namespace RDS.ExpenseTracker.Data.Helpers
 {
-    public static class DataHelper 
-    {        
+    public static class DataHelper
+    {
         public static bool AtomicTransaction(Action action, ExpenseTrackerContext context)
         {
             using var dbTransaction = context.Database.BeginTransaction();

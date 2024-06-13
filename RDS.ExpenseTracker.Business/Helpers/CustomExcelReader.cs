@@ -2,7 +2,7 @@
 using RDS.ExpenseTracker.Business.Helpers.Abstractions;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Data;
+using RDS.ExpenseTracker.Data.Helpers;
 using System.Data;
 using System.Diagnostics;
 using System.Text;
@@ -13,86 +13,100 @@ namespace RDS.ExpenseTracker.Business.Helpers
     {
         private readonly IFinancialAccountService _accountService;
         private readonly ITransactionService _transactionService;
-        private readonly ExpenseTrackerContext _context;
+        private readonly ICategoryService _categoryService;
+        private readonly string[] sheetNameExceptions;
 
         #region Constructors
-        public CustomExcelReader(IFinancialAccountService accountService, ITransactionService transactionService, ExpenseTrackerContext context)
+        public CustomExcelReader(IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _transactionService = transactionService ?? throw new ArgumentNullException(nameof(transactionService));
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            sheetNameExceptions = new[] { "back-up", "sheet", "maggio 2021", "giugno 2021", "luglio 2021", "agosto 2021" };
         }
         #endregion
 
-        #region Private Methods        
-
+        #region Private Methods 
         private IEnumerable<Transaction> GetTransactionsFromRow(DataRow row)
         {
-            var transactions = new List<Transaction>();
-            var rowModel = row.ToExcelDataRowModel();
+            var model = row.ToExcelDataRowModel();
 
-            if (rowModel.TransactionAmount != 0 && !string.IsNullOrWhiteSpace(rowModel.TransactionAccountName))
+            if (model.TransactionAmount != 0 && !string.IsNullOrWhiteSpace(model.TransactionAccountName))
             {
-                var account = _accountService.GetFinancialAccounts(x => x.Name.ToLower() == rowModel.TransactionAccountName.ToLower()).FirstOrDefault();
-
-                var transaction = new Transaction
-                {
-                    Amount = rowModel.TransactionAmount,
-                    Date = rowModel.TransactionDate,
-                    Description = rowModel.TransactionDescription,
-                    FinancialAccountName = rowModel.TransactionAccountName,
-                    FinancialAccountId = account?.Id ?? 0,
-                    Id = 0,
-                    IsTransfer = false
-                };
-
-                transactions.Add(transaction);
+                yield return model.GetStandardTransaction();
             }
 
-            if (rowModel.TransferAmount < 0 && !string.IsNullOrWhiteSpace(rowModel.TransactionDescription))
+            if (model.TransferAmount != 0 && !string.IsNullOrWhiteSpace(model.TransferDescription))
             {
-                var accounts = _accountService.GetFinancialAccounts();
+                yield return model.GetOutgoingTransfer();
+                yield return model.GetIngoingTransfer();
+            }
+        }
 
-                var destinationAccount = new FinancialAccount();
-                foreach (var account in accounts)
+        private IEnumerable<Transaction> GetTransactionsFromDataTable(DataTable dataTable)
+        {
+            var defaultDate = ExcelReaderUtilities.ParseDateFromSheetName(dataTable.TableName);
+
+            return dataTable.Rows.Cast<DataRow>()
+                .SelectMany(GetTransactionsFromRow)
+                .Select(transaction =>
+            {
+                ExcelReaderUtilities.AssignDateIfMissing(transaction, defaultDate);
+                return transaction;
+            });
+        }
+
+        private IEnumerable<Transaction> AssignCreateFinancialAccount(IEnumerable<Transaction> transactions)
+        {
+            foreach (var transaction in transactions)
+            {
+                if (transaction.FinancialAccountId <= 0)
                 {
-                    if (rowModel.TransactionDescription.ToLower().Contains(account.Name.ToLower()))
+                    var account = _accountService.GetFinancialAccounts(x => x.Name.ToLowerInvariant() == transaction.FinancialAccountName.ToLowerInvariant()).FirstOrDefault();
+                    if (account != null)
                     {
-                        destinationAccount = account;
+                        transaction.FinancialAccountId = account.Id;
+                        yield return transaction;
+                        continue;
                     }
+
+                    var newAccountId = _accountService.AddFinancialAccount(new FinancialAccount { Name = transaction.FinancialAccountName });
+                    transaction.FinancialAccountId = newAccountId;
+                    yield return transaction;
+                }
+            }
+        }
+
+        private IEnumerable<Transaction> AssignCategories(IEnumerable<Transaction> transactions)
+        {
+            var categories = _categoryService.GetCategories().OrderBy(x => x.Priority, Comparer<int>.Default);
+            var defaultCategory = categories.FirstOrDefault(x => x.Name.Contains("Altro"));
+            var transferCategory = categories.FirstOrDefault(x => x.Name.Contains("SpostamentiDenaro"));
+
+            foreach (var transaction in transactions)
+            {
+                if (transaction.CategoryName == "SpostamentiDenaro" && transferCategory != null)
+                {
+                    transaction.CategoryId = transferCategory.Id;
+                    yield return transaction;
+                    continue;
                 }
 
-                var sellaAccount = accounts.Where(x => x.Name.ToLower() == "sella").FirstOrDefault();
-
-                var originTransaction = new Transaction
+                foreach (var category in categories)
                 {
-                    Amount = rowModel.TransferAmount * -1,
-                    Date = rowModel.TransferDate,
-                    Description = rowModel.TransactionDescription,
-                    Category = CategoryEnum.SpostamentiDenaro,
-                    FinancialAccountId = sellaAccount?.Id ?? 0,
-                    FinancialAccountName = "Sella",
-                    Id = 0,
-                    IsTransfer = true
-                };
-
-                var destinationTransaction = new Transaction
+                    if (transaction.Description.ToLower().ContainsOne(category.Tags.Select(x => x.ToLower().Trim()).ToArray()))
+                    {
+                        transaction.CategoryId = category.Id;
+                        yield return transaction;
+                        break;
+                    }
+                }
+                if (transaction.CategoryId == 0 && defaultCategory != null)
                 {
-                    Amount = rowModel.TransferAmount,
-                    Date = rowModel.TransferDate,
-                    Description = rowModel.TransactionDescription,
-                    Category = CategoryEnum.SpostamentiDenaro,
-                    FinancialAccountId = destinationAccount.Id,
-                    FinancialAccountName = destinationAccount.Name,
-                    Id = 0,
-                    IsTransfer = true
-                };
-
-                transactions.Add(originTransaction);
-                transactions.Add(destinationTransaction);
+                    transaction.CategoryId = defaultCategory.Id;
+                    yield return transaction;
+                }
             }
-
-            return transactions;
         }
         #endregion
 
@@ -104,38 +118,12 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 using var stream = File.Open(path, FileMode.Open, FileAccess.Read);
                 using var reader = ExcelReaderFactory.CreateReader(stream);
-                var dataSet = reader.AsDataSet();
 
-                var transactions = Enumerable.Empty<Transaction>();
+                var dataTables = reader.AsDataSet().Tables.Cast<DataTable>();
 
-                foreach (DataTable dataTable in dataSet.Tables)
-                {
-                    var exceptions = new string[] { "back-up", "sheet", "maggio 2021", "giugno 2021", "luglio 2021", "agosto 2021" };
-                    if (dataTable.TableName.ToLower().ContainsOne(exceptions))
-                    {
-                        continue;
-                    }
-
-                    var currentSheetTransactions = Enumerable.Empty<Transaction>();
-
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        var currentRowTransactions = GetTransactionsFromRow(row);
-                        currentSheetTransactions = currentSheetTransactions.Concat(currentRowTransactions);
-                    }
-
-                    var date = ExcelReaderUtilities.ParseDateFromSheetName(dataTable.TableName);
-
-                    foreach (var transaction in currentSheetTransactions)
-                    {
-                        transaction.Date ??= date;
-                    }
-
-                    transactions = transactions.Concat(currentSheetTransactions).ToList();
-                }
-
-                CategoryHelper.UpdateCategories(transactions);
-                return transactions;
+                return dataTables
+                    .Where(dt => !dt.TableName.ToLower().ContainsOne(sheetNameExceptions))
+                    .SelectMany(GetTransactionsFromDataTable);
             }
             catch (Exception ex)
             {
@@ -146,29 +134,15 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
         public void SaveData(IEnumerable<Transaction> transactions)
         {
-            DataHelper.AtomicTransaction(() =>
-            {
-                foreach(var transaction in transactions)
-                {
-                    if(transaction.FinancialAccountId <= 0)
-                    {
-                        var newAccount = new FinancialAccount
-                        {
-                            Id = 0,
-                            Name = transaction.FinancialAccountName,
-                            Availability = 0
-                        };
+            transactions = AssignCreateFinancialAccount(transactions);
+            transactions = AssignCategories(transactions);
 
-                        var newAccountId = _accountService.AddFinancialAccount(newAccount);
+            var readyToSave = transactions.ToList();
 
-                        transaction.FinancialAccountId = newAccountId;
-                    }
-                }
-                _transactionService.AddTransactions(transactions);
-            }, 
-            _context);
+            _transactionService.AddTransactions(readyToSave);
+            _accountService.UpdateAvailabilities(readyToSave);
         }
-        #endregion
 
+        #endregion
     }
 }

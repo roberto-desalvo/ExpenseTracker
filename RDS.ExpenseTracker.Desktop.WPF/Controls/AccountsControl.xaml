@@ -5,9 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:RDS.ExpenseTracker.Desktop.WPF.Controls"
+             xmlns:vm="clr-namespace:RDS.ExpenseTracker.Desktop.WPF.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="800"
              >
+    <UserControl.DataContext>
+        <vm:AccountsControlViewModel/>
+    </UserControl.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -18,25 +22,25 @@
         <materialDesign:Card Grid.Column="0" Background="{StaticResource MaterialDesign.Brush.Chip.Background}" UniformCornerRadius="15" Margin="10">
             <StackPanel Margin="10">
                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12">Sella</TextBlock>
-                <TextBlock Name="SellaTextBlock" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
+                <TextBlock Name="SellaTextBlock" Text="{Binding SellaAvailability}"  FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
             </StackPanel>
         </materialDesign:Card>
         <materialDesign:Card Grid.Column="1" Background="{StaticResource MaterialDesign.Brush.Chip.Background}" UniformCornerRadius="15" Margin="10">
             <StackPanel Margin="10">
                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12">Hype</TextBlock>
-                <TextBlock Name="HypeTextBlock" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
+                <TextBlock Name="HypeTextBlock" Text="{Binding HypeAvailability}" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
             </StackPanel>
         </materialDesign:Card>
         <materialDesign:Card Grid.Column="2" Background="{StaticResource MaterialDesign.Brush.Chip.Background}" UniformCornerRadius="15" Margin="10">
             <StackPanel Margin="10">
                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12">Satispay</TextBlock>
-                <TextBlock Name="SatispayTextBlock" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
+                <TextBlock Name="SatispayTextBlock" Text="{Binding SatispayAvailability}" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
             </StackPanel>
         </materialDesign:Card>
         <materialDesign:Card Grid.Column="3" Background="{StaticResource MaterialDesign.Brush.Chip.Background}" UniformCornerRadius="15" Margin="10">
             <StackPanel Margin="10">
                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12">Contanti</TextBlock>
-                <TextBlock Name="ContantiTextBlock" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
+                <TextBlock Name="ContantiTextBlock" Text="{Binding ContantiAvailability}" FontFamily="{StaticResource MaterialDesignFont}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Margin="0 10"/>
             </StackPanel>
         </materialDesign:Card>
     </Grid>

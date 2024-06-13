@@ -1,4 +1,5 @@
 ﻿using RDS.ExpenseTracker.Business.Services.Abstractions;
+using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,23 +23,18 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Controls
     /// </summary>
     public partial class AccountsControl : UserControl
     {
-        private readonly IFinancialAccountService _accountService;
+        private readonly AccountsControlViewModel _viewModel;
 
         public AccountsControl(IFinancialAccountService accountService)
         {
-            _accountService = accountService;
+            _viewModel = new(accountService);
             InitializeComponent();
             Refresh();
         }
 
         public void Refresh()
         {
-            var accounts = _accountService.GetFinancialAccounts();
-
-            SellaTextBlock.Text = accounts.Where(x => x.Name.ToLower().Contains("sella")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            HypeTextBlock.Text = accounts.Where(x => x.Name.ToLower().Contains("hype")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            SatispayTextBlock.Text = accounts.Where(x => x.Name.ToLower().Contains("satispay")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            ContantiTextBlock.Text = accounts.Where(x => x.Name.ToLower().Contains("contanti")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
+            _viewModel.Refresh();
         }
     }
 }

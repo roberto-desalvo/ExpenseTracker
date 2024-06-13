@@ -8,10 +8,10 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Models
 {
     class MainViewModel
     {
-        public decimal SellaAvailability { get; set; }
-        public decimal SatispayAvailability { get; set; }
-        public decimal ContantiAvailability { get; set; }
-        public decimal HypeAvailability { get; set; }
+        public int SellaAvailability { get; set; }
+        public int SatispayAvailability { get; set; }
+        public int ContantiAvailability { get; set; }
+        public int HypeAvailability { get; set; }
 
         public ICollection<TransactionDataGridViewModel> DataGridRecords { get; set; }
     }
