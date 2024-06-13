@@ -2,6 +2,7 @@
 using RDS.ExpenseTracker.Business.Helpers.Abstractions;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
+using RDS.ExpenseTracker.Data.Helpers;
 using System.Data;
 using System.Diagnostics;
 using System.Text;
@@ -84,27 +85,27 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
             foreach (var transaction in transactions)
             {
-                if(transaction.CategoryName == "SpostamentiDenaro" && transferCategory != null)
+                if (transaction.CategoryName == "SpostamentiDenaro" && transferCategory != null)
                 {
                     transaction.CategoryId = transferCategory.Id;
                     yield return transaction;
                     continue;
                 }
 
-                foreach(var category in categories)
+                foreach (var category in categories)
                 {
-                    if (transaction.Description.ToLower().ContainsOne(category.Tags.Select(x =>x.ToLower().Trim()).ToArray()))
+                    if (transaction.Description.ToLower().ContainsOne(category.Tags.Select(x => x.ToLower().Trim()).ToArray()))
                     {
                         transaction.CategoryId = category.Id;
                         yield return transaction;
                         break;
                     }
                 }
-                if(transaction.CategoryId == 0)
+                if (transaction.CategoryId == 0 && defaultCategory != null)
                 {
                     transaction.CategoryId = defaultCategory.Id;
                     yield return transaction;
-                }                
+                }
             }
         }
         #endregion
@@ -137,10 +138,11 @@ namespace RDS.ExpenseTracker.Business.Helpers
             transactions = AssignCategories(transactions);
 
             var readyToSave = transactions.ToList();
+
             _transactionService.AddTransactions(readyToSave);
             _accountService.UpdateAvailabilities(readyToSave);
         }
-        
+
         #endregion
     }
 }

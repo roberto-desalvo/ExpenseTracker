@@ -23,7 +23,7 @@ namespace RDS.ExpenseTracker.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=MAIN;Database=ExpenseTracker_Main2;User Id=fantadepo;Password=fantadepo;Trusted_Connection=True;TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer("");
 
             base.OnConfiguring(optionsBuilder);
         }
