@@ -15,7 +15,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Mappings
     {
         public ExpenseTrackerDesktopProfile()
         {
-            CreateMap<Transaction, TransactionDataGridViewModel>()
+            CreateMap<Transaction, TransactionDataGridModel>()
                 .ForMember(x => x.AccountName, opt => opt.MapFrom(src => src.FinancialAccountName))
                 .ForMember(x => x.Category, opt => opt.MapFrom(src => src.CategoryName))
                 .ForMember(x => x.Date, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.Date.Value)));

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.Models
 {
-    public class TransactionDataGridViewModel
+    public class TransactionDataGridModel
     {
         public int Id { get; set; }
         public DateOnly? Date { get; set; }

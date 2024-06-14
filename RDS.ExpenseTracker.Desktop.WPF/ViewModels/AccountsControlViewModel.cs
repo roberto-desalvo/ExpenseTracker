@@ -1,19 +1,16 @@
 ﻿using RDS.ExpenseTracker.Business.Services.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using RDS.ExpenseTracker.Desktop.WPF.Commands;
+using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class AccountsControlViewModel : INotifyPropertyChanged
+    public class AccountsControlViewModel : BaseViewModel
     {
-        private string sellaAvailability { get; set; }
-        private string hypeAvailability { get; set; }
-        private string satispayAvailability { get; set; }
-        private string contantiAvailability { get; set; }
+        private string sellaAvailability { get; set; } = string.Empty;
+        private string hypeAvailability { get; set; } = string.Empty;
+        private string satispayAvailability { get; set; } = string.Empty;
+        private string contantiAvailability { get; set; } = string.Empty;
 
         private readonly IFinancialAccountService _accountService;
 
@@ -25,7 +22,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 if (sellaAvailability != value)
                 {
                     sellaAvailability = value;
-                    OnPropertyChanged(nameof(SellaAvailability));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -38,7 +35,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 if (hypeAvailability != value)
                 {
                     hypeAvailability = value;
-                    OnPropertyChanged(nameof(HypeAvailability));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -51,7 +48,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 if (satispayAvailability != value)
                 {
                     satispayAvailability = value;
-                    OnPropertyChanged(nameof(SatispayAvailability));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -64,30 +61,20 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 if (contantiAvailability != value)
                 {
                     contantiAvailability = value;
-                    OnPropertyChanged(nameof(ContantiAvailability));
+                    NotifyPropertyChanged();
                 }
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public AccountsControlViewModel()
-        {
-            
-        }
+        
 
         public AccountsControlViewModel(IFinancialAccountService accountService)
         {
             _accountService = accountService;
+            EventAggregator.Instance.Subscribe<RefreshMessage>(Refresh);
             Refresh();
         }
 
-        public void Refresh()
+        public void Refresh(RefreshMessage message = null)
         {
             var accounts = _accountService.GetFinancialAccounts();
 
