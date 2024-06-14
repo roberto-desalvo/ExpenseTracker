@@ -13,13 +13,12 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Views.Controls
     /// <summary>
     /// Interaction logic for TransactionGrid.xaml
     /// </summary>
-    public partial class TransactionGridControl : UserControl
+    public partial class TransactionGridUserControl : UserControl
     {
-        public TransactionGridControl(TransactionGridControlViewModel viewModel)
+        public TransactionGridUserControl(TransactionGridViewModel viewModel)
         {
             this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            ((TransactionGridControlViewModel)this.DataContext).Refresh();
         }
     }
 }

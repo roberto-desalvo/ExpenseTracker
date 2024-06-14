@@ -23,7 +23,7 @@ namespace RDS.ExpenseTracker.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("");
+            //optionsBuilder.UseSqlServer("");
 
             base.OnConfiguring(optionsBuilder);
         }

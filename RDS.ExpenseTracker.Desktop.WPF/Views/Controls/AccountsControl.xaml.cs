@@ -21,13 +21,12 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Views.Controls
     /// <summary>
     /// Interaction logic for AccountsControl.xaml
     /// </summary>
-    public partial class AccountsControl : UserControl
+    public partial class AccountsUserControl : UserControl
     {
-        public AccountsControl(AccountsControlViewModel viewModel)
+        public AccountsUserControl(AccountsViewModel viewModel)
         {
             this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            ((AccountsControlViewModel)this.DataContext).Refresh();
         }
 
     }

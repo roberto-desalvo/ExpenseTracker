@@ -15,8 +15,10 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Views
         {
             this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            RenderPages.Children.Add(serviceProvider.GetRequiredService<TransactionGridControl>());
-            AccountHeader.Children.Add(serviceProvider.GetRequiredService<AccountsControl>());
+            GridPlaceholder.Children.Add(serviceProvider.GetRequiredService<TransactionGridUserControl>());
+            AccountHeader.Children.Add(serviceProvider.GetRequiredService<AccountsUserControl>());
+            GridFilterPlaceholder.Children.Add(serviceProvider.GetService<GridFilterOptionsUserControl>());
+            MainViewModel.Refresh();
         }
     }
 }

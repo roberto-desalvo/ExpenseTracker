@@ -32,11 +32,10 @@ namespace RDS.ExpenseTracker.Desktop.WPF
 
         private void ConfigureServices(ServiceCollection services)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             // context
             services.AddDbContext<ExpenseTrackerContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             });
 
             // automapper
@@ -54,13 +53,15 @@ namespace RDS.ExpenseTracker.Desktop.WPF
 
             // views
             services.AddSingleton<MainView>();
-            services.AddSingleton<TransactionGridControl>();
-            services.AddSingleton<AccountsControl>();
+            services.AddSingleton<TransactionGridUserControl>();
+            services.AddSingleton<AccountsUserControl>();
+            services.AddSingleton<GridFilterOptionsUserControl>();
 
             // view models
-            services.AddScoped<MainViewModel>();
-            services.AddScoped<TransactionGridControlViewModel>();
-            services.AddScoped<AccountsControlViewModel>();
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<TransactionGridViewModel>();
+            services.AddTransient<AccountsViewModel>();
+            services.AddTransient<GridFilterOptionsViewModel>();
         }
         private void OnStartup(object sender, StartupEventArgs e)
         {

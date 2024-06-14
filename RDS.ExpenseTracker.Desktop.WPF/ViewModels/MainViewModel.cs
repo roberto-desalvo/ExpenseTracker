@@ -39,13 +39,18 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             Application.Current.Shutdown();
         }
 
-        private void Refresh()
+        public static void Refresh()
         {
             EventAggregator.Instance.Publish(new RefreshMessage());
         }
 
         private void ImportExcel()
         {
+            if(MessageBox.Show("Sei sicuro di voler importare i dati dal file excel?", "Import excel", MessageBoxButton.YesNo) != MessageBoxResult.Yes) 
+            {
+                return;
+            }
+
             var path = ConfigurationManager.AppSettings.Get("ImportExcelFilePath")?.ToString() ?? string.Empty;
 
             if (!Path.Exists(path))

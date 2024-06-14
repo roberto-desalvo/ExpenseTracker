@@ -1,19 +1,20 @@
-﻿using RDS.ExpenseTracker.Business.Services.Abstractions;
+﻿using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class AccountsControlViewModel : BaseViewModel
+    public class AccountsViewModel : BaseViewModel
     {
-        private string sellaAvailability { get; set; } = string.Empty;
-        private string hypeAvailability { get; set; } = string.Empty;
-        private string satispayAvailability { get; set; } = string.Empty;
-        private string contantiAvailability { get; set; } = string.Empty;
 
         private readonly IFinancialAccountService _accountService;
+        private IEnumerable<FinancialAccount> accounts;
 
+        private string sellaAvailability { get; set; } = string.Empty;
         public string SellaAvailability
         {
             get { return sellaAvailability; }
@@ -27,6 +28,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             }
         }
 
+        private string hypeAvailability { get; set; } = string.Empty;
         public string HypeAvailability
         {
             get { return hypeAvailability; }
@@ -40,6 +42,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             }
         }
 
+        private string satispayAvailability { get; set; } = string.Empty;
         public string SatispayAvailability
         {
             get { return satispayAvailability; }
@@ -53,6 +56,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             }
         }
 
+        private string contantiAvailability { get; set; } = string.Empty;
         public string ContantiAvailability
         {
             get { return contantiAvailability; }
@@ -67,21 +71,31 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         }
         
 
-        public AccountsControlViewModel(IFinancialAccountService accountService)
+        public AccountsViewModel(IFinancialAccountService accountService)
         {
-            _accountService = accountService;
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            accounts = _accountService.GetFinancialAccounts();
             EventAggregator.Instance.Subscribe<RefreshMessage>(Refresh);
-            Refresh();
         }
 
         public void Refresh(RefreshMessage message = null)
         {
-            var accounts = _accountService.GetFinancialAccounts();
+            accounts = _accountService.GetFinancialAccounts();
 
-            SellaAvailability = accounts.Where(x => x.Name.ToLower().Contains("sella")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            HypeAvailability = accounts.Where(x => x.Name.ToLower().Contains("hype")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            SatispayAvailability = accounts.Where(x => x.Name.ToLower().Contains("satispay")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
-            ContantiAvailability = accounts.Where(x => x.Name.ToLower().Contains("contanti")).FirstOrDefault()?.Availability.ToString() ?? string.Empty;
+            SellaAvailability = GetAccountAvailability("sella");
+            HypeAvailability = GetAccountAvailability("hype");
+            SatispayAvailability = GetAccountAvailability("satispay");
+            ContantiAvailability = GetAccountAvailability("contanti");
+        }
+
+        private string GetAccountAvailability(string accountName)
+        {
+            var availability = accounts.Where(x => x.Name.ToLower().Contains(accountName)).FirstOrDefault()?.Availability.ToString();
+
+            return string.IsNullOrEmpty(availability) ? string.Empty 
+                : (availability.Length == 1) ? $"0.0{availability}"
+                : (availability.Length == 2) ? $"0.{availability}"
+                : $"{availability[..^2]}.{availability[^2..]}";
         }
     }
 }

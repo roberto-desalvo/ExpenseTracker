@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="RDS.ExpenseTracker.Desktop.WPF.Views.Controls.TransactionGridControl"
+﻿<UserControl x:Class="RDS.ExpenseTracker.Desktop.WPF.Views.Controls.TransactionGridUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,7 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:RDS.ExpenseTracker.Desktop.WPF.Views.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" x:Name="ContainerWindow">
+             d:DesignHeight="450" d:DesignWidth="600" x:Name="ContainerWindow">
     <Grid Margin="10">
         <ListView x:Name="TransactionGrid" ItemsSource="{Binding Path=Transactions}" 
                   Background="{StaticResource MaterialDesignLightSeparatorBackground}"
