@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
+using RDS.ExpenseTracker.Data.Entities;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.Models;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
@@ -32,11 +33,19 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             EventAggregator.Instance.Subscribe<RefreshMessage>(Refresh);
         }
 
-        public void Refresh(RefreshMessage message = null)
+        public void Refresh(RefreshMessage message)
         {
-            var transactions = _transactionService.GetTransactions(null, false);
+            var filter = message.ToTransactionPredicate();
+            Refresh(filter);
+        }
+
+        public void Refresh(Predicate<ETransaction> filter)
+        {
+            var transactions = _transactionService.GetTransactions(filter, false);
             var models = _mapper.Map<IEnumerable<TransactionGridModel>>(transactions).OrderByDescending(x => x.Date);
             Transactions = new ObservableCollection<TransactionGridModel>(models);
         }
+
+
     }
 }

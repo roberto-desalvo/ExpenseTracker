@@ -1,4 +1,6 @@
 ﻿using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Business.Services.Abstractions;
+using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
     public class GridFilterOptionsViewModel : BaseViewModel
     {
-        private ObservableCollection<Category> categories = new();
+        private ObservableCollection<Category> categories;
         public ObservableCollection<Category> Categories
         {
             get { return categories; }
@@ -35,8 +37,85 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 {
                     selectedCategory = value;
                     NotifyPropertyChanged();
+                    EventAggregator.Instance.Publish(new RefreshMessage { SelectedCategory = selectedCategory });
                 }
             }
+        }
+
+        private DateOnly startDate;
+        public DateOnly StartDate
+        {
+            get { return startDate; }
+            set
+            {
+                if (value != startDate)
+                {
+                    startDate = value;
+                    NotifyPropertyChanged();
+                    EventAggregator.Instance.Publish(new RefreshMessage { StartDate = startDate});
+                }
+            }
+        }
+
+        private DateOnly endDate;
+        public DateOnly EndDate
+        {
+            get { return endDate; }
+            set
+            {
+                if (value != endDate)
+                {
+                    endDate = value;
+                    NotifyPropertyChanged();
+                    EventAggregator.Instance.Publish(new RefreshMessage { EndDate = endDate });
+                }
+            }
+        }
+
+        private ObservableCollection<FinancialAccount> accounts;
+        public ObservableCollection<FinancialAccount> Accounts
+        {
+            get { return accounts; }
+            set
+            {
+                if (value != accounts)
+                {
+                    accounts = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private FinancialAccount selectedAccount;
+        public FinancialAccount SelectedAccount
+        {
+            get { return selectedAccount; }
+            set
+            {
+                if (value != selectedAccount)
+                {
+                    selectedAccount = value;
+                    NotifyPropertyChanged();
+                    EventAggregator.Instance.Publish(new RefreshMessage { SelectedAccount = selectedAccount });
+                }
+            }
+        }
+
+        private readonly IFinancialAccountService _accountService;
+        private readonly ICategoryService _categoryService;
+
+        public GridFilterOptionsViewModel(IFinancialAccountService accountService, ICategoryService categoryService)
+        {
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+
+            LoadInitialData();
+        }
+
+        private void LoadInitialData()
+        {
+            Categories = new ObservableCollection<Category>(_categoryService.GetCategories());
+            Accounts = new ObservableCollection<FinancialAccount>(_accountService.GetFinancialAccounts());
         }
     }
 }
