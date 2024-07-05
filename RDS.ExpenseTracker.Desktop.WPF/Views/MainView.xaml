@@ -102,7 +102,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0"  Name="GridPlaceholder" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
-                            <Grid Grid.Column="0"  Name="GridFilterPlaceholder" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
+                            <Grid Grid.Column="1"  Name="GridFilterPlaceholder" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
                         </Grid> 
                     </materialDesign:Card>
 

@@ -13,15 +13,15 @@
             <RowDefinition Height="*"/> <!--conto-->
             <RowDefinition Height="*"/> <!---->            
         </Grid.RowDefinitions>
-        <ComboBox Grid.Row="0" Style="{DynamicResource MaterialDesignComboBox}" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+        <ComboBox Grid.Row="0" Style="{DynamicResource MaterialDesignComboBox}" ItemsSource="{Binding Categories}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedCategory}"/>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <DatePickerTextBox Grid.Row="0" Style="{DynamicResource MaterialDesignDatePickerTextBox}" SelectedText="{Binding StartDate, StringFormat=d, Mode=TwoWay}"/>
-            <DatePickerTextBox Grid.Row="1" Style="{DynamicResource MaterialDesignDatePickerTextBox}" SelectedText="{Binding EndDate, StringFormat=d, Mode=TwoWay}"/>
+            <DatePicker Grid.Row="0" Style="{DynamicResource MaterialDesignDatePicker}" SelectedDate="{Binding StartDate}"/>
+            <DatePicker Grid.Row="1" Style="{DynamicResource MaterialDesignDatePicker}" SelectedDate="{Binding EndDate}"/>
         </Grid>
-        <ComboBox Grid.Row="0" Style="{DynamicResource MaterialDesignComboBox}" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}"/>
+        <ComboBox Grid.Row="0" Style="{DynamicResource MaterialDesignComboBox}" ItemsSource="{Binding Accounts}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedAccount}"/>
     </Grid>
 </UserControl>
