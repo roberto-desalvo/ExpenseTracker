@@ -1,11 +1,11 @@
 ﻿using System.Data;
+using System.Globalization;
 using RDS.ExpenseTracker.Business.Models;
 
 namespace RDS.ExpenseTracker.Business.Helpers
 {
     public static class ExcelReaderUtilities
     {
-        private static readonly string[] months = { "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre" };
 
         public static DateTime ParseDateFromSheetName(string name)
         {
@@ -13,6 +13,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             var year = int.Parse(name[index..].Trim());
             var monthStr = name[..index].Trim().ToLower();
 
+            var months = new CultureInfo("it-IT").DateTimeFormat.MonthNames.Select(x => x.ToLowerInvariant()).ToArray();
             var month = Array.IndexOf(months, monthStr) + 1;
 
             return new DateTime(year, month, 1);

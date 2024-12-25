@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RDS.ExpenseTracker.Business.Helpers;
 using RDS.ExpenseTracker.Business.Helpers.Abstractions;
@@ -7,15 +6,12 @@ using RDS.ExpenseTracker.Business.Mappings;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
-using RDS.ExpenseTracker.Desktop.WPF.Controls;
 using RDS.ExpenseTracker.Desktop.WPF.Mappings;
+using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using RDS.ExpenseTracker.Desktop.WPF.Views;
+using RDS.ExpenseTracker.Desktop.WPF.Views.Controls;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace RDS.ExpenseTracker.Desktop.WPF
@@ -33,13 +29,13 @@ namespace RDS.ExpenseTracker.Desktop.WPF
             ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
         }
+
         private void ConfigureServices(ServiceCollection services)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             // context
             services.AddDbContext<ExpenseTrackerContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
             });
 
             // automapper
@@ -57,8 +53,15 @@ namespace RDS.ExpenseTracker.Desktop.WPF
 
             // views
             services.AddSingleton<MainView>();
-            services.AddSingleton<TransactionGridControl>();
-            services.AddSingleton<AccountsControl>();
+            services.AddSingleton<TransactionGridUserControl>();
+            services.AddSingleton<AccountsUserControl>();
+            services.AddSingleton<GridFilterOptionsUserControl>();
+
+            // view models
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<TransactionGridViewModel>();
+            services.AddTransient<AccountsViewModel>();
+            services.AddTransient<GridFilterOptionsViewModel>();
         }
         private void OnStartup(object sender, StartupEventArgs e)
         {

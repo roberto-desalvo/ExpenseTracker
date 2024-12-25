@@ -16,25 +16,18 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace RDS.ExpenseTracker.Desktop.WPF.Controls
+namespace RDS.ExpenseTracker.Desktop.WPF.Views.Controls
 {
     /// <summary>
     /// Interaction logic for AccountsControl.xaml
     /// </summary>
-    public partial class AccountsControl : UserControl
+    public partial class AccountsUserControl : UserControl
     {
-        private readonly AccountsControlViewModel _viewModel;
-
-        public AccountsControl(IFinancialAccountService accountService)
+        public AccountsUserControl(AccountsViewModel viewModel)
         {
-            _viewModel = new(accountService);
+            this.DataContext = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             InitializeComponent();
-            Refresh();
         }
 
-        public void Refresh()
-        {
-            _viewModel.Refresh();
-        }
     }
 }

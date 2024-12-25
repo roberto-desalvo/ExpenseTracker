@@ -83,10 +83,10 @@ namespace RDS.ExpenseTracker.Business.Services
             return _mapper.Map<Transaction?>(entity);
         }
 
-        public IEnumerable<Transaction> GetTransactions(Func<ETransaction, bool>? filter = null, bool lazy = true)
+        public IEnumerable<Transaction> GetTransactions(Predicate<ETransaction>? filter = null, bool lazy = true)
         {
-            Func<ETransaction, bool> all = x => true;
-            var entities = lazy ? _context.Transactions.Where(filter ?? all) : _context.Transactions.Include(x => x.FinancialAccount).Include(x => x.Category).Where(filter ?? all);
+            Predicate<ETransaction> all = x => true;
+            var entities = lazy ? _context.Transactions.Where(new Func<ETransaction, bool>(filter ?? all)) : _context.Transactions.Include(x => x.FinancialAccount).Include(x => x.Category).Where(new Func<ETransaction, bool>(filter ?? all));
                 
 
             return _mapper.Map<IEnumerable<Transaction>>(entities).ToList();

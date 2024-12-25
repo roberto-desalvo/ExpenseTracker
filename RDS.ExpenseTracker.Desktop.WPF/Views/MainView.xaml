@@ -7,6 +7,7 @@
         xmlns:mahAppsControls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:mahAppsShared="http://metro.mahapps.com/winfx/xaml/shared"
         xmlns:local="clr-namespace:RDS.ExpenseTracker.Desktop.WPF.Views"
+        xmlns:vm="clr-namespace:RDS.ExpenseTracker.Desktop.WPF.ViewModels"
         mc:Ignorable="d"
         Height="850" Width="1200"
         WindowStartupLocation="CenterScreen"        
@@ -38,7 +39,7 @@
                     <ListView>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 10">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black" Name="RefreshButton">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" Command="{Binding Path=RefreshCommand}">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="Refresh"/>
                                 </StackPanel>
@@ -46,7 +47,7 @@
                         </ListViewItem>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 10">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black" Name="ImportButton">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" Command="{Binding Path=ImportExcelCommand}">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="Import"/>
                                 </StackPanel>
@@ -54,7 +55,7 @@
                         </ListViewItem>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 10">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="EqualiserVertical"/>
                                 </StackPanel>
@@ -62,15 +63,15 @@
                         </ListViewItem>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 10">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="NatureOutline"/>
+                                    <materialDesign:PackIcon Kind="NatureOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 10">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="ChatOutline"/>
                                 </StackPanel>
@@ -78,7 +79,7 @@
                         </ListViewItem>
                         <ListViewItem HorizontalAlignment="Center" Margin="0 60 0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="Black" Name="ExitButton">
+                                    BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" Command="{Binding Path=ExitCommand}">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="ExitToApp"/>
                                 </StackPanel>
@@ -92,10 +93,17 @@
                         <RowDefinition Height="9*"/>
                     </Grid.RowDefinitions>
                     <materialDesign:Card Grid.Row="0" UniformCornerRadius="15" Margin="10">
-                        <Grid Name="AccountSpace" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
+                        <Grid Name="AccountHeader" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
                     </materialDesign:Card>
                     <materialDesign:Card Grid.Row="1" UniformCornerRadius="15" Margin="10" Padding="10">
-                        <Grid Name="RenderPages" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0"  Name="GridPlaceholder" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
+                            <Grid Grid.Column="1"  Name="GridFilterPlaceholder" Background="{StaticResource MaterialDesignLightSeparatorBackground}"/>
+                        </Grid> 
                     </materialDesign:Card>
 
                 </Grid>
