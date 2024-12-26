@@ -1,57 +1,45 @@
-﻿using RDS.ExpenseTracker.Business.Helpers.Abstractions;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using RDS.ExpenseTracker.Business.Helpers.Abstractions;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
-using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
-using RDS.ExpenseTracker.Desktop.WPF.Views.Controls;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public partial class MainViewModel : ObservableObject
     {
         private readonly ICustomExcelReader _excelReader;
         private readonly IFinancialAccountService _accountService;
         private readonly ITransactionService _transactionService;
-
-        public RelayCommand? RefreshCommand { get; private set; }
-        public RelayCommand? ImportExcelCommand { get; private set; }
-        public RelayCommand? ExitCommand { get; private set; }
 
         public MainViewModel(ICustomExcelReader excelReader, IFinancialAccountService accountService, ITransactionService transactionService)
         {
             _excelReader = excelReader;
             _accountService = accountService;
             _transactionService = transactionService;
-            SetupCommands();
         }
 
-        private void SetupCommands()
-        {
-            RefreshCommand = new RelayCommand(x => Refresh());
-            ImportExcelCommand = new RelayCommand(x => ImportExcel());
-            ExitCommand = new RelayCommand(x => CloseApplication());
-        }
-
-        private void CloseApplication()
+        [RelayCommand]
+        private void Exit()
         {
             Application.Current.Shutdown();
         }
 
+        [RelayCommand]
         public static void Refresh()
         {
             EventAggregator.Instance.Publish(new RefreshMessage());
         }
 
+        [RelayCommand]
         private void ImportExcel()
         {
             var path = ConfigurationManager.AppSettings.Get("ImportExcelFilePath")?.ToString() ?? string.Empty;
