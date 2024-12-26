@@ -1,30 +1,24 @@
 ﻿using AutoMapper;
+using CommunityToolkit.Mvvm.ComponentModel;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data.Entities;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.Models;
-using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class TransactionGridViewModel : BaseViewModel
+    public partial class TransactionGridViewModel : ObservableObject
     {
         private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
-        private ObservableCollection<TransactionGridModel> transactions = new();
 
-        public ObservableCollection<TransactionGridModel> Transactions
-        {
-            get { return transactions; }
-            set {
-                transactions = value;
-                NotifyPropertyChanged();
-            }
-        }
+        [ObservableProperty]
+        private ObservableCollection<TransactionGridModel> transactions = new();
 
         public TransactionGridViewModel(ITransactionService transactionService, IMapper mapper)
         {
@@ -41,7 +35,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 
         public void Refresh(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter)
         {
-            var transactions = _transactionService.GetTransactions(filter);
+            var transactions = Task.Run(async () => await _transactionService.GetTransactions(filter)).Result;
             var models = _mapper.Map<IEnumerable<TransactionGridModel>>(transactions).OrderByDescending(x => x.Date);
             Transactions = new ObservableCollection<TransactionGridModel>(models);
         }

@@ -1,104 +1,48 @@
-﻿using RDS.ExpenseTracker.Business.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
-using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class GridFilterOptionsViewModel : BaseViewModel
+    public partial class GridFilterOptionsViewModel : ObservableObject
     {
+        [ObservableProperty]
         private ObservableCollection<Category> categories;
-        public ObservableCollection<Category> Categories
-        {
-            get { return categories; }
-            set
-            {
-                if (value != categories)
-                {
-                    categories = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
 
+        [ObservableProperty]
         private Category selectedCategory;
-        public Category SelectedCategory
+        partial void OnSelectedCategoryChanged(Category value)
         {
-            get { return selectedCategory; }
-            set
-            {
-                if (value != selectedCategory)
-                {
-                    selectedCategory = value;
-                    NotifyPropertyChanged();
-                    EventAggregator.Instance.Publish(new RefreshMessage { SelectedCategory = selectedCategory });
-                }
-            }
+            EventAggregator.Instance.Publish(new RefreshMessage { SelectedCategory = this.SelectedCategory });
         }
 
+        [ObservableProperty]
         private DateOnly startDate;
-        public DateOnly StartDate
+        partial void OnStartDateChanged(DateOnly value)
         {
-            get { return startDate; }
-            set
-            {
-                if (value != startDate)
-                {
-                    startDate = value;
-                    NotifyPropertyChanged();
-                    EventAggregator.Instance.Publish(new RefreshMessage { StartDate = startDate});
-                }
-            }
+            EventAggregator.Instance.Publish(new RefreshMessage { StartDate = this.StartDate });
         }
 
+        [ObservableProperty]
         private DateOnly endDate;
-        public DateOnly EndDate
+        partial void OnEndDateChanged(DateOnly value)
         {
-            get { return endDate; }
-            set
-            {
-                if (value != endDate)
-                {
-                    endDate = value;
-                    NotifyPropertyChanged();
-                    EventAggregator.Instance.Publish(new RefreshMessage { EndDate = endDate });
-                }
-            }
+            EventAggregator.Instance.Publish(new RefreshMessage { EndDate = this.EndDate });
         }
 
+        [ObservableProperty]
         private ObservableCollection<FinancialAccount> accounts;
-        public ObservableCollection<FinancialAccount> Accounts
-        {
-            get { return accounts; }
-            set
-            {
-                if (value != accounts)
-                {
-                    accounts = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
 
+
+        [ObservableProperty]
         private FinancialAccount selectedAccount;
-        public FinancialAccount SelectedAccount
+        partial void OnSelectedAccountChanged(FinancialAccount value)
         {
-            get { return selectedAccount; }
-            set
-            {
-                if (value != selectedAccount)
-                {
-                    selectedAccount = value;
-                    NotifyPropertyChanged();
-                    EventAggregator.Instance.Publish(new RefreshMessage { SelectedAccount = selectedAccount });
-                }
-            }
+            EventAggregator.Instance.Publish(new RefreshMessage { SelectedAccount = this.SelectedAccount });
         }
 
         private readonly IFinancialAccountService _accountService;

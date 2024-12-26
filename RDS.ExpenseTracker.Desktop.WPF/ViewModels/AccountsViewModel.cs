@@ -1,7 +1,7 @@
-﻿using RDS.ExpenseTracker.Business.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
-using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,67 +9,23 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
-    public class AccountsViewModel : BaseViewModel
+    public partial class AccountsViewModel : ObservableObject
     {
 
         private readonly IFinancialAccountService _accountService;
         private IEnumerable<FinancialAccount> accounts;
 
-        private string sellaAvailability { get; set; } = string.Empty;
-        public string SellaAvailability
-        {
-            get { return sellaAvailability; }
-            set
-            {
-                if (sellaAvailability != value)
-                {
-                    sellaAvailability = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private string sellaAvailability = string.Empty;
 
-        private string hypeAvailability { get; set; } = string.Empty;
-        public string HypeAvailability
-        {
-            get { return hypeAvailability; }
-            set
-            {
-                if (hypeAvailability != value)
-                {
-                    hypeAvailability = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private string hypeAvailability = string.Empty;
 
-        private string satispayAvailability { get; set; } = string.Empty;
-        public string SatispayAvailability
-        {
-            get { return satispayAvailability; }
-            set
-            {
-                if (satispayAvailability != value)
-                {
-                    satispayAvailability = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private string satispayAvailability = string.Empty;
 
-        private string contantiAvailability { get; set; } = string.Empty;
-        public string ContantiAvailability
-        {
-            get { return contantiAvailability; }
-            set
-            {
-                if (contantiAvailability != value)
-                {
-                    contantiAvailability = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        [ObservableProperty]
+        private string contantiAvailability = string.Empty;
         
 
         public AccountsViewModel(IFinancialAccountService accountService)
