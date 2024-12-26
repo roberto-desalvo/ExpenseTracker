@@ -1,10 +1,14 @@
 ﻿using RDS.ExpenseTracker.Business.Helpers.Abstractions;
+using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Views.Controls;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,14 +20,18 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
     public class MainViewModel : BaseViewModel
     {
         private readonly ICustomExcelReader _excelReader;
+        private readonly IFinancialAccountService _accountService;
+        private readonly ITransactionService _transactionService;
 
         public RelayCommand? RefreshCommand { get; private set; }
         public RelayCommand? ImportExcelCommand { get; private set; }
         public RelayCommand? ExitCommand { get; private set; }
 
-        public MainViewModel(ICustomExcelReader excelReader)
+        public MainViewModel(ICustomExcelReader excelReader, IFinancialAccountService accountService, ITransactionService transactionService)
         {
             _excelReader = excelReader;
+            _accountService = accountService;
+            _transactionService = transactionService;
             SetupCommands();
         }
 
@@ -46,11 +54,6 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 
         private void ImportExcel()
         {
-            if(MessageBox.Show("Sei sicuro di voler importare i dati dal file excel?", "Import excel", MessageBoxButton.YesNo) != MessageBoxResult.Yes) 
-            {
-                return;
-            }
-
             var path = ConfigurationManager.AppSettings.Get("ImportExcelFilePath")?.ToString() ?? string.Empty;
 
             if (!Path.Exists(path))
@@ -58,8 +61,54 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 MessageBox.Show("Il path del file spese non esiste");
             }
 
-            Task.Factory.StartNew(() =>
+            var answer = MessageBox.Show("Vuoi sovrascrivere i dati esistenti?", "Import excel", MessageBoxButton.YesNoCancel);
+            if (answer == MessageBoxResult.Cancel)
             {
+                return;
+            }
+            else if (answer == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _transactionService.DeleteAllTransactions();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Problemi durante la cancellazione delle transazioni: \n{ex.Message}");
+                    return;
+                }
+
+                if (ConfigurationManager.GetSection("InitValuesSection") is not NameValueCollection initValues)
+                {
+                    MessageBox.Show($"Configurazione non valida. Non ho trovato i valori iniziali");
+                    return;
+                }
+
+                var accounts = Task.Run(async () => await _accountService.GetFinancialAccounts()).Result;
+
+                foreach (var key in initValues.AllKeys)
+                {
+                    if (!int.TryParse(initValues[key], out int value))
+                    {
+                        MessageBox.Show($"Configurazione invalida: {key}");
+                        return;
+                    };
+
+                    if (accounts.FirstOrDefault(a => string.Equals(a.Name, key, StringComparison.InvariantCultureIgnoreCase))
+                        is not FinancialAccount account)
+                    {
+                        MessageBox.Show($"Account {key} non trovato");
+                        return;
+                    }
+
+                    account.Availability = value;
+                    _accountService.UpdateFinancialAccount(account);
+                }
+            }
+
+            Task.Factory.StartNew(() =>
+            {                             
+
                 MessageBox.Show("Import iniziato in backgroud...");
 
                 var list = _excelReader.GetTransactionsFromExcel(path);
@@ -76,9 +125,9 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                     MessageBox.Show("Excel importato correttamente");
                     Refresh();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Errore durante il salvataggio dei dati");
+                    MessageBox.Show($"Errore durante il salvataggio dei dati: \n{ex.Message}");
                 }
             });
         }

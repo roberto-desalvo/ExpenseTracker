@@ -8,7 +8,7 @@ namespace RDS.ExpenseTrackerApi.Helpers
         {
             try
             {
-                action();
+                action.Invoke();
                 return true;
             }
             catch(Exception ex)  

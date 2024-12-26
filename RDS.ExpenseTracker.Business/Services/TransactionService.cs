@@ -14,7 +14,7 @@ namespace RDS.ExpenseTracker.Business.Services
         private readonly IFinancialAccountService _accountService;
         private readonly ICategoryService _categoryService;
 
-        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService, ICategoryService categoryService) 
+        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService, ICategoryService categoryService)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
@@ -22,92 +22,81 @@ namespace RDS.ExpenseTracker.Business.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public void AddTransactions(IEnumerable<Transaction> transactions)
+        public async Task AddTransactions(IEnumerable<Transaction> transactions)
         {
-            foreach(var transaction in transactions)
+            var tasks = new List<Task>();
+            foreach (var transaction in transactions)
             {
-                AddTransaction(transaction, false);
+                tasks.Add(Task.Factory.StartNew(async () => await AddTransaction(transaction, false)));                
             }
-            _context.SaveChanges();
+
+            await Task.WhenAll(tasks).ContinueWith(async _ => await _context.SaveChangesAsync());            
         }
 
-        public void AddTransaction(Transaction transaction, bool saveChanges)
+        public async Task AddTransaction(Transaction transaction, bool saveChanges)
         {
-            transaction.Id = 0;
             var entity = _mapper.Map<ETransaction>(transaction);
 
-            if (entity != null)
-            {
-                _context.Transactions.Add(entity);
+            await _context.Transactions.AddAsync(entity);
 
-                if (saveChanges)
-                {
-                    _context.SaveChanges();
-                }
+            if (saveChanges)
+            {
+                await _context.SaveChangesAsync();
             }
         }
 
-        public void DeleteTransaction(string id)
+        public async Task DeleteTransaction(int id)
         {
-            if (!int.TryParse(id, out int convertedId))
-                return;
-            DeleteTransaction(convertedId);
-        }
-
-        public void DeleteTransaction(int id)
-        {
-            var entity = _context.Transactions.FirstOrDefault(x => x.Id == id);
+            var entity = await _context.Transactions.FirstOrDefaultAsync(x => x.Id == id);
             if (entity != null)
             {
                 _context.Transactions.Remove(entity);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 
-        public void DeleteTransaction(Transaction transaction)
+        public async Task<Transaction?> GetTransaction(int id)
         {
-            _context.Transactions.Remove(_mapper.Map<ETransaction>(transaction));
-            _context.SaveChanges();
-        }
-
-        public Transaction? GetTransaction(string id)
-        {
-            if (!int.TryParse(id, out int convertedId))
-                throw new InvalidCastException(nameof(id));
-            return GetTransaction(convertedId);
-        }
-
-        public Transaction? GetTransaction(int id)
-        {
-            var entity = _context.Transactions.FirstOrDefault(x => x.Id == id);
+            var entity = await _context.Transactions.FirstOrDefaultAsync(x => x.Id == id);
             return _mapper.Map<Transaction?>(entity);
         }
 
-        public IEnumerable<Transaction> GetTransactions(Predicate<ETransaction>? filter = null, bool lazy = true)
+        public async Task UpdateTransaction(Transaction modified)
         {
-            Predicate<ETransaction> all = x => true;
-            var entities = lazy ? _context.Transactions.Where(new Func<ETransaction, bool>(filter ?? all)) : _context.Transactions.Include(x => x.FinancialAccount).Include(x => x.Category).Where(new Func<ETransaction, bool>(filter ?? all));
-                
-
-            return _mapper.Map<IEnumerable<Transaction>>(entities).ToList();
-        }        
-
-        public void UpdateTransaction(Transaction transaction)
-        {
-            var entity = _context.Transactions.FirstOrDefault(x => x.Id == transaction.Id);
-            if (entity != null)
+            var current = await _context.Transactions.FirstOrDefaultAsync(x => x.Id == modified.Id);
+            if (current != null)
             {
-                if (entity.Amount != transaction.Amount)
+                if (current.Amount != modified.Amount)
                 {
-                    var delta = entity.Amount - transaction.Amount;
-                    var account = _context.FinancialAccounts.Where(x => x.Id == entity.FinancialAccountId).FirstOrDefault() ?? throw new Exception();
-                    account.Availability -= delta;
-                    entity.Amount = transaction.Amount;
-                }
-                entity.Description = transaction.Description;
-                _context.SaveChanges();
+                    current.Amount = modified.Amount;
 
+                    var delta = modified.Amount - current.Amount;
+
+                    await _accountService.UpdateAvailability(current.FinancialAccountId, delta, false);
+                }
+                current.Description = modified.Description;
+                await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter = null)
+        {
+            var query = _context.Transactions.AsQueryable();
+
+            if (filter != null)
+            {
+                query = filter.Invoke(query);
+            }
+
+            var results = await query.ToListAsync();
+
+            return _mapper.Map<IEnumerable<Transaction>>(results);
+        }
+
+        public async Task DeleteAllTransactions()
+        {
+            _context.Transactions.RemoveRange();
+            await _context.SaveChangesAsync();
         }
     }
 }

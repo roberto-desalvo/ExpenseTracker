@@ -35,13 +35,13 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 
         public void Refresh(RefreshMessage message)
         {
-            var filter = message.ToTransactionPredicate();
+            var filter = message.GetTransactionFilter();
             Refresh(filter);
         }
 
-        public void Refresh(Predicate<ETransaction> filter)
+        public void Refresh(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter)
         {
-            var transactions = _transactionService.GetTransactions(filter, false);
+            var transactions = _transactionService.GetTransactions(filter);
             var models = _mapper.Map<IEnumerable<TransactionGridModel>>(transactions).OrderByDescending(x => x.Date);
             Transactions = new ObservableCollection<TransactionGridModel>(models);
         }

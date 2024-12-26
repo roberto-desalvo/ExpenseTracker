@@ -9,6 +9,6 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface ICategoryService
     {
-        public IEnumerable<Category> GetCategories();
+        Task<IEnumerable<Category>> GetCategories();
     }
 }

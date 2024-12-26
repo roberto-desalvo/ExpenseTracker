@@ -28,7 +28,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Commands
             {
                 foreach (var action in subscribers[typeof(T)].Cast<Action<T>>())
                 {
-                    action(message);
+                    action.Invoke(message);
                 }
             }
         }

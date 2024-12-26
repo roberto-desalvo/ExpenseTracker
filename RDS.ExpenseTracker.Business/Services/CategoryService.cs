@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -21,9 +22,10 @@ namespace RDS.ExpenseTracker.Business.Services
             _context = context;
         }
 
-        public IEnumerable<Category> GetCategories()
+        public async Task<IEnumerable<Category>> GetCategories()
         {
-            return _mapper.Map<IEnumerable<Category>>(_context.Categories);
+            var categories = await _context.Categories.ToListAsync();
+            return _mapper.Map<IEnumerable<Category>>(categories);
         }
     }
 }

@@ -10,23 +10,28 @@ namespace RDS.ExpenseTrackerApi.Endpoints
     {
         public static void AddFinancialAccountEndpoints(this WebApplication app)
         {
-            app.MapGet("/account/{id}", IResult (string id, IFinancialAccountService service) =>
+            app.MapGet("/account/{id}", async (int id, IFinancialAccountService service, IMapper mapper) =>
             {
-                return Results.Ok(service.GetFinancialAccount(id));
+                var account = await service.GetFinancialAccount(id);
+                var dto = mapper.Map<FinancialAccountDto>(account);
+                return Results.Ok(dto);
             })
                 .WithName("GET Single account")
                 .WithOpenApi();
 
-            app.MapGet("/account/{id}/availability", IResult (int id, IFinancialAccountService service) =>
+            app.MapGet("/account/{id}/availability", async (int id, IFinancialAccountService service) =>
             {
-                return Results.Ok(service.GetAvailability(id));
+                var availability = await service.GetAvailability(id);
+                return Results.Ok(availability);
             })
                 .WithName("GET account availabililty")
                 .WithOpenApi();
 
-            app.MapGet("/accounts", IResult (IFinancialAccountService service) =>
+            app.MapGet("/accounts", async (IFinancialAccountService service, IMapper mapper) =>
             {
-                return Results.Ok(service.GetFinancialAccounts());
+                var accounts = await service.GetFinancialAccounts();
+                var dtos = mapper.Map<IEnumerable<FinancialAccountDto>>(accounts);
+                return Results.Ok(dtos);
             })
                 .WithName("GET All accounts")
                 .WithOpenApi();
@@ -34,7 +39,7 @@ namespace RDS.ExpenseTrackerApi.Endpoints
             app.MapPost("/account", IResult (FinancialAccountDto dto, IFinancialAccountService service, IMapper mapper) =>
             {
                 var account = mapper.Map<FinancialAccount>(dto);
-                return SafeInvoker.SafeInvoke(() => service.AddFinancialAccount(account))
+                return SafeInvoker.SafeInvoke(async () => await service.AddFinancialAccount(account))
                 ?
                 TypedResults.Ok() : TypedResults.Problem();
             })
@@ -44,25 +49,27 @@ namespace RDS.ExpenseTrackerApi.Endpoints
             app.MapPut("/account", IResult (FinancialAccountDto dto, IFinancialAccountService service, IMapper mapper) =>
             {
                 var account = mapper.Map<FinancialAccount>(dto);
-                return SafeInvoker.SafeInvoke(() => service.UpdateFinancialAccount(account))
+                return SafeInvoker.SafeInvoke(async () => await service.UpdateFinancialAccount(account))
                 ?
                 TypedResults.Ok() : TypedResults.Problem();
             })
                 .WithName("Update account")
                 .WithOpenApi();
 
-            app.MapDelete("/account/{id}", IResult (string id, IFinancialAccountService service, IMapper mapper) =>
+            app.MapDelete("/account/{id}", IResult (int id, IFinancialAccountService service, IMapper mapper) =>
             {
-                return SafeInvoker.SafeInvoke(() => service.DeleteFinancialAccount(id))
+                return SafeInvoker.SafeInvoke(async () => await service.DeleteFinancialAccount(id))
                 ?
                 TypedResults.Ok() : TypedResults.Problem();
             })
                 .WithName("Delete account")
                 .WithOpenApi();
 
-            app.MapGet("/account/{id}/Transactions", IResult (int id, ITransactionService service) =>
+            app.MapGet("/account/{id}/Transactions", async (int id, ITransactionService service, IMapper mapper) =>
             {
-                return Results.Ok(service.GetTransactions(x => x.FinancialAccountId == id));
+                var transactions = await service.GetTransactions(query => query.Where(transaction => transaction.FinancialAccountId == id));
+                var dtos = mapper.Map<IEnumerable<TransactionDto>>(transactions);
+                return Results.Ok(dtos);
             })
                 .WithName("GET Transactions by account")
                 .WithOpenApi();
