@@ -5,14 +5,12 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface ITransactionService
     {
-        Transaction? GetTransaction(int id);
-        Transaction? GetTransaction(string id);
-        IEnumerable<Transaction> GetTransactions(Predicate<ETransaction>? filter = null, bool lazy = true);
-        void AddTransactions(IEnumerable<Transaction> transactions);
-        void AddTransaction(Transaction transaction, bool saveChanges);
-        void UpdateTransaction(Transaction transaction);
-        void DeleteTransaction(int id);
-        void DeleteTransaction(string id);
-        void DeleteTransaction(Transaction transaction);
+        Task<Transaction?> GetTransaction(int id);
+        Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter = null);
+        Task AddTransactions(IEnumerable<Transaction> transactions);
+        Task AddTransaction(Transaction transaction, bool saveChanges);
+        Task UpdateTransaction(Transaction transaction);
+        Task DeleteTransaction(int id);
+        Task DeleteAllTransactions();
     }
 }

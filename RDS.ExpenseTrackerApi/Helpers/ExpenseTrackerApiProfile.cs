@@ -9,15 +9,10 @@ namespace RDS.ExpenseTrackerApi.Helpers
     {
         public ExpenseTrackerApiProfile()
         {
-            CreateMap<ETransaction, Transaction>();
-            CreateMap<Transaction, ETransaction>();
-            CreateMap<Transaction, TransactionDto>();
-            CreateMap<TransactionDto, Transaction>();
-
-            CreateMap<EFinancialAccount, FinancialAccount>();
-            CreateMap<FinancialAccount, EFinancialAccount>();
-            CreateMap<FinancialAccount, FinancialAccountDto>();
-            CreateMap<FinancialAccountDto, FinancialAccount>();
+            CreateMap<ETransaction, Transaction>().ReverseMap();
+            CreateMap<Transaction, TransactionDto>().ReverseMap();
+            CreateMap<EFinancialAccount, FinancialAccount>().ReverseMap();
+            CreateMap<FinancialAccount, FinancialAccountDto>().ReverseMap();
         }
     }
 }

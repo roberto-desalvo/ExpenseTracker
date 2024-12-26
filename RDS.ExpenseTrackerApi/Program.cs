@@ -8,7 +8,7 @@ using RDS.ExpenseTrackerApi.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
 var corsPolicyLiveServer = "AllowLiveServer";
 builder.Services.AddCors(options =>
@@ -23,13 +23,14 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-builder.Services.AddDbContext<ExpenseTrackerContext>(x => 
+builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
     x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
     );
 
-builder.Services.AddAutoMapper(typeof(ExpenseTrackerApiProfile));
+builder.Services.AddAutoMapper(x => x.AddProfile(typeof(ExpenseTrackerApiProfile)));
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IFinancialAccountService, FinancialAccountService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 var app = builder.Build();
@@ -37,12 +38,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    //app.UseSwaggerUI();
+    app.UseSwaggerUI();
 }
 
 app.AddTransactionEndpoints();
 app.AddFinancialAccountEndpoints();
 app.UseCors(corsPolicyLiveServer);
+
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 

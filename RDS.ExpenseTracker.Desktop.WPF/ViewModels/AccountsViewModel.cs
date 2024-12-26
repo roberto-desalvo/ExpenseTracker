@@ -5,6 +5,7 @@ using RDS.ExpenseTracker.Desktop.WPF.ViewModels.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
@@ -74,13 +75,13 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         public AccountsViewModel(IFinancialAccountService accountService)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            accounts = _accountService.GetFinancialAccounts();
+            accounts = Task.Run(async () => await _accountService.GetFinancialAccounts()).Result;
             EventAggregator.Instance.Subscribe<RefreshMessage>(Refresh);
         }
 
         public void Refresh(RefreshMessage message = null)
         {
-            accounts = _accountService.GetFinancialAccounts();
+            accounts = Task.Run(async () => await _accountService.GetFinancialAccounts()).Result;
 
             SellaAvailability = GetAccountAvailability("sella");
             HypeAvailability = GetAccountAvailability("hype");

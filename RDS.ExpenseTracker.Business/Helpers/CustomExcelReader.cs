@@ -62,7 +62,11 @@ namespace RDS.ExpenseTracker.Business.Helpers
             {
                 if (transaction.FinancialAccountId <= 0)
                 {
-                    var account = _accountService.GetFinancialAccounts(x => x.Name.ToLowerInvariant() == transaction.FinancialAccountName.ToLowerInvariant()).FirstOrDefault();
+                    var account = Task.Run(async () => 
+                        (await _accountService.GetFinancialAccounts(x => x.Name.ToLowerInvariant() == transaction.FinancialAccountName.ToLowerInvariant()))
+                        .FirstOrDefault()
+                    ).Result;
+
                     if (account != null)
                     {
                         transaction.FinancialAccountId = account.Id;
@@ -70,7 +74,9 @@ namespace RDS.ExpenseTracker.Business.Helpers
                         continue;
                     }
 
-                    var newAccountId = _accountService.AddFinancialAccount(new FinancialAccount { Name = transaction.FinancialAccountName });
+                    var newAccount = new FinancialAccount { Name = transaction.FinancialAccountName };
+                    var newAccountId = Task.Run(async () => await _accountService.AddFinancialAccount(newAccount)).Result;
+
                     transaction.FinancialAccountId = newAccountId;
                     yield return transaction;
                 }
@@ -79,7 +85,8 @@ namespace RDS.ExpenseTracker.Business.Helpers
 
         private IEnumerable<Transaction> AssignCategories(IEnumerable<Transaction> transactions)
         {
-            var categories = _categoryService.GetCategories().OrderBy(x => x.Priority, Comparer<int>.Default);
+            var categories = Task.Run(_categoryService.GetCategories).Result
+                .OrderBy(x => x.Priority, Comparer<int>.Default);
             var defaultCategory = categories.FirstOrDefault(x => x.Name.Contains("Altro"));
             var transferCategory = categories.FirstOrDefault(x => x.Name.Contains("SpostamentiDenaro"));
 
@@ -132,15 +139,15 @@ namespace RDS.ExpenseTracker.Business.Helpers
             }
         }
 
-        public void SaveData(IEnumerable<Transaction> transactions)
+        public async Task SaveData(IEnumerable<Transaction> transactions)
         {
             transactions = AssignCreateFinancialAccount(transactions);
             transactions = AssignCategories(transactions);
 
             var readyToSave = transactions.ToList();
 
-            _transactionService.AddTransactions(readyToSave);
-            _accountService.UpdateAvailabilities(readyToSave);
+            await _transactionService.AddTransactions(readyToSave);
+            await _accountService.CalculateAvailabilities(readyToSave);
         }
 
         #endregion

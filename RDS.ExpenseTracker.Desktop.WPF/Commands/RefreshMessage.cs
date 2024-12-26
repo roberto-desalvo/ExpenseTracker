@@ -15,37 +15,16 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Commands
         public DateOnly? EndDate { get; internal set; }
         public FinancialAccount? SelectedAccount { get; internal set; }
 
-        public Predicate<ETransaction> ToTransactionPredicate()
+        public Func<IQueryable<ETransaction>, IQueryable<ETransaction>> GetTransactionFilter()
         {
-            return x =>
-            {
-                var result = true;
+            return transactions => transactions.Where(x =>
 
-                if (SelectedCategory != null && x.Category.Name.ToUpperInvariant() != SelectedCategory.Name.ToUpperInvariant())
-                {
-                    result = false;
-                }
+            (SelectedCategory == null) || (string.Equals(x.Category.Name, SelectedCategory.Name, StringComparison.InvariantCultureIgnoreCase))
+            &&
+            ((x.Date == null) || (StartDate == null) || (DateOnly.FromDateTime(x.Date.Value) > StartDate) || ((EndDate == null) || (DateOnly.FromDateTime(x.Date.Value) < EndDate))
+            &&
+            ((SelectedAccount == null) || string.Equals(x.FinancialAccount.Name, SelectedAccount.Name, StringComparison.InvariantCultureIgnoreCase))));
 
-                if (x.Date != null)
-                {
-                    if (StartDate != null && DateOnly.FromDateTime(x.Date.Value) < StartDate)
-                    {
-                        result = false;
-                    }
-
-                    if (EndDate != null && DateOnly.FromDateTime(x.Date.Value) > EndDate)
-                    {
-                        result = false;
-                    }
-                }
-
-                if(SelectedAccount != null && x.FinancialAccount.Name.ToUpperInvariant() != SelectedAccount.Name.ToUpperInvariant())
-                {
-                    return false;
-                }
-
-                return result;
-            };
         }
     }
 }

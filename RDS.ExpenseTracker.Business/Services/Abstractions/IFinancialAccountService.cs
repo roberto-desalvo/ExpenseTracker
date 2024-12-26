@@ -5,17 +5,13 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface IFinancialAccountService
     {
-        int AddFinancialAccount(FinancialAccount account);
-        void DeleteFinancialAccount(string id);
-        void DeleteFinancialAccount(int id);
-        void UpdateFinancialAccount(FinancialAccount account);
-        FinancialAccount? GetFinancialAccount(string id);
-        FinancialAccount? GetFinancialAccount(int id);
-        IList<FinancialAccount> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null);
-        bool UpdateAvailability(string accountId, int amount, bool saveChanges);
-        bool UpdateAvailability(int accountId, int amount, bool saveChanges);
-        decimal GetAvailability(string accountId);
-        decimal GetAvailability(int accountId);
-        void UpdateAvailabilities(IEnumerable<Transaction> transactions);
+        Task<int> AddFinancialAccount(FinancialAccount account);
+        Task DeleteFinancialAccount(int id);
+        Task UpdateFinancialAccount(FinancialAccount account);
+        Task<FinancialAccount?> GetFinancialAccount(int id);
+        Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null);
+        Task<bool> UpdateAvailability(int accountId, int amount, bool saveChanges);
+        Task<decimal> GetAvailability(int accountId);
+        Task CalculateAvailabilities(IEnumerable<Transaction> transactions);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
@@ -18,82 +19,69 @@ namespace RDS.ExpenseTracker.Business.Services
             _context = context;
         }
 
-        public int AddFinancialAccount(FinancialAccount account)
+        public async Task<int> AddFinancialAccount(FinancialAccount account)
         {
             var item = _mapper.Map<EFinancialAccount>(account);
             var entry = _context.FinancialAccounts.Add(item);
-            _context.SaveChanges();
-            return item.Id;
+            await _context.SaveChangesAsync();
+            return entry.Entity.Id;
         }
 
-        public void DeleteFinancialAccount(string id)
+        public async Task DeleteFinancialAccount(int id)
         {
-            var parsedId = int.Parse(id);
-            DeleteFinancialAccount(parsedId);
-        }
-
-        public void DeleteFinancialAccount(int id)
-        {
-            var entity = _context.FinancialAccounts.Find(id);
+            var entity = await _context.FinancialAccounts.FindAsync(id);
             if (entity != null)
             {
                 _context.FinancialAccounts.Remove(entity);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 
-        public decimal GetAvailability(string accountId)
+        public async Task<decimal> GetAvailability(int accountId)
         {
-            var parsedId = int.Parse(accountId);
-            return GetAvailability(parsedId);
-        }
-
-        public decimal GetAvailability(int accountId)
-        {
-            var accountEntity = _context.FinancialAccounts.FirstOrDefault(x => x.Id == accountId);            
+            var accountEntity = await _context.FinancialAccounts.FirstOrDefaultAsync(x => x.Id == accountId);            
             return accountEntity?.Availability ?? -1;
         }
 
-        public FinancialAccount? GetFinancialAccount(string id)
+        public async Task<FinancialAccount?> GetFinancialAccount(int id)
         {
-            var parsedId = int.Parse(id);
-            return GetFinancialAccount(parsedId);
-        }
-
-        public FinancialAccount? GetFinancialAccount(int id)
-        {
-            var entity = _context.FinancialAccounts.Find(id);
+            var entity = await _context.FinancialAccounts.FindAsync(id);
             return _mapper.Map<FinancialAccount>(entity);
         }
 
-        public IList<FinancialAccount> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null)
+        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null)
         {
-            return _context.FinancialAccounts.Where(filter ?? (x => true))
-                .Select(_mapper.Map<FinancialAccount>)
-                .ToList();
+            var query = _context.FinancialAccounts.AsQueryable();
+
+            if(filter != null)
+            {
+                query = query.Where(x => filter.Invoke(x));
+            }
+
+            var results = await query.ToListAsync();
+
+            return _mapper.Map<IEnumerable<FinancialAccount>>(results);
         }
 
-        public void UpdateAvailabilities(IEnumerable<Transaction> transactions)
+        public async Task CalculateAvailabilities(IEnumerable<Transaction> transactions)
         {
             var accountIds = transactions.Select(x => x.FinancialAccountId).Distinct();
-
+            var tasks = new List<Task>();
             foreach(var id in accountIds)
             {
-                var sum = transactions.Where(x => x.FinancialAccountId == id).Select(x => x.Amount).Sum();
-                UpdateAvailability(id, sum, false);
+                tasks.Add(Task.Factory.StartNew(async () =>
+                {
+                    var sum = transactions.Where(x => x.FinancialAccountId == id).Select(x => x.Amount).Sum();
+                    await UpdateAvailability(id, sum, false);
+                }));                
             }
-            _context.SaveChanges();
+
+            await Task.WhenAll(tasks).ContinueWith(async _ => await _context.SaveChangesAsync());
         }
 
-        public bool UpdateAvailability(string accountId, int amount, bool saveChanges)
+        public async Task<bool> UpdateAvailability(int accountId, int amount, bool saveChanges)
         {
-            var parsedId = int.Parse(accountId);
-            return UpdateAvailability(parsedId, amount, saveChanges);
-        }
-
-        public bool UpdateAvailability(int accountId, int amount, bool saveChanges)
-        {
-            var accountEntity = _context.FinancialAccounts.FirstOrDefault(x => x.Id == accountId);
+            var accountEntity = await _context.FinancialAccounts.FirstOrDefaultAsync(x => x.Id == accountId);
             if (accountEntity == null)
             {
                 return false;
@@ -102,17 +90,23 @@ namespace RDS.ExpenseTracker.Business.Services
             accountEntity.Availability += amount;
             if (saveChanges)
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             
             
             return true;
         }
 
-        public void UpdateFinancialAccount(FinancialAccount account)
+        public async Task UpdateFinancialAccount(FinancialAccount account)
         {
-            _context.FinancialAccounts.Update(_mapper.Map<EFinancialAccount>(account));
-            _context.SaveChanges();
+            var modified = _mapper.Map<EFinancialAccount>(account);
+            var original = await _context.FinancialAccounts.FindAsync(modified.Id);
+
+            if (original != null)
+            {
+                _context.Entry(original).CurrentValues.SetValues(modified);
+                await _context.SaveChangesAsync();
+            }            
         }
     }
 }

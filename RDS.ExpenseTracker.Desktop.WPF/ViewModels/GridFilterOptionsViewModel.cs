@@ -109,13 +109,16 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
 
-            LoadInitialData();
+            LoadData();
         }
 
-        private void LoadInitialData()
+        private void LoadData()
         {
-            Categories = new ObservableCollection<Category>(_categoryService.GetCategories());
-            Accounts = new ObservableCollection<FinancialAccount>(_accountService.GetFinancialAccounts());
+            var categories = Task.Run(_categoryService.GetCategories).Result;
+            var accounts = Task.Run(async () => await _accountService.GetFinancialAccounts()).Result;
+
+            Categories = new ObservableCollection<Category>(categories);
+            Accounts = new ObservableCollection<FinancialAccount>(accounts);
         }
     }
 }
