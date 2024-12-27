@@ -27,5 +27,14 @@ namespace RDS.ExpenseTracker.Business.Services
             var categories = await _context.Categories.ToListAsync();
             return _mapper.Map<IEnumerable<Category>>(categories);
         }
+
+        public async Task<Category> GetDefaultCategory()
+        {
+            var entity = await _context.Categories.AsQueryable()
+                .Where(c => c.Name.ToLower().Trim() == "default")
+                .FirstOrDefaultAsync();
+
+            return _mapper.Map<Category>(entity);    
+        }
     }
 }

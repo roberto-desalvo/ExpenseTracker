@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using RDS.ExpenseTracker.Business.Helpers;
-using RDS.ExpenseTracker.Business.Helpers.Abstractions;
 using RDS.ExpenseTracker.Business.Mappings;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
+using RDS.ExpenseTracker.Business.TransactionImport;
+using RDS.ExpenseTracker.Business.TransactionImport.Abstractions;
 using RDS.ExpenseTracker.Data;
 using RDS.ExpenseTracker.Desktop.WPF.Mappings;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
@@ -49,7 +49,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF
             services.AddScoped<IFinancialAccountService, FinancialAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ICustomExcelReader, CustomExcelReader>();
+            services.AddScoped<ITransactionImporterFactory, TransactionImporterFactory>();
 
             // views
             services.AddSingleton<MainView>();

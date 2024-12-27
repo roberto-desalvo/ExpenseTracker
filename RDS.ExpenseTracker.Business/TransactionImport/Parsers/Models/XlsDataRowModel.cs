@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RDS.ExpenseTracker.Business.Models
+namespace RDS.ExpenseTracker.Business.TransactionImport.Parsers.Models
 {
-    public class ExcelDataRowModel
+    public class XlsDataRowModel
     {
         public DateTime? TransactionDate { get; set; }
         public string TransactionDescription { get; set; } = string.Empty;

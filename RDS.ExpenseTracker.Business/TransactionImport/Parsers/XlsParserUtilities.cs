@@ -1,10 +1,12 @@
 ﻿using System.Data;
 using System.Globalization;
+using RDS.ExpenseTracker.Business.TransactionImport.Parsers.Models;
 using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Business.Utilities;
 
-namespace RDS.ExpenseTracker.Business.Helpers
+namespace RDS.ExpenseTracker.Business.TransactionImport.Parsers
 {
-    public static class ExcelReaderUtilities
+    public static class XlsParserUtilities
     {
 
         public static DateTime ParseDateFromSheetName(string name)
@@ -19,12 +21,12 @@ namespace RDS.ExpenseTracker.Business.Helpers
             return new DateTime(year, month, 1);
         }
 
-        public static ExcelDataRowModel ToExcelDataRowModel(this DataRow dataRow)
+        public static XlsDataRowModel GetDataRowModel(DataRow dataRow)
         {
-            var transactionOutflow = Utilities.CubedDecimalToInt(dataRow[2].ParseToDecimal()) ?? 0;
-            var transactionInflow = Utilities.CubedDecimalToInt(dataRow[3].ParseToDecimal()) ?? 0;
+            var transactionOutflow = Utils.DecimalToCubedInt(dataRow[2].ParseToDecimal()) ?? 0;
+            var transactionInflow = Utils.DecimalToCubedInt(dataRow[3].ParseToDecimal()) ?? 0;
 
-            var model = new ExcelDataRowModel
+            var model = new XlsDataRowModel
             {
                 TransactionDate = dataRow[0].ParseToDateTime(),
                 TransactionDescription = dataRow[1]?.ToString() ?? string.Empty,
@@ -32,13 +34,13 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 TransactionAccountName = dataRow[4]?.ToString() ?? string.Empty,
                 TransferDate = dataRow[9].ParseToDateTime(),
                 TransferDescription = dataRow[10]?.ToString() ?? string.Empty,
-                TransferAmount = Utilities.CubedDecimalToInt(dataRow[11].ParseToDecimal()) ?? 0
+                TransferAmount = Utils.DecimalToCubedInt(dataRow[11].ParseToDecimal()) ?? 0
             };
 
             return model;
         }
 
-        public static Transaction GetStandardTransaction(this ExcelDataRowModel model)
+        public static Transaction ExtractStandardTransaction(XlsDataRowModel model)
         {
             return new Transaction
             {
@@ -47,11 +49,11 @@ namespace RDS.ExpenseTracker.Business.Helpers
                 Description = model.TransactionDescription,
                 FinancialAccountName = model.TransactionAccountName,
                 IsTransfer = false,
-                CategoryName = ""
+                CategoryName = string.Empty
             };
         }
 
-        public static Transaction GetOutgoingTransfer(this ExcelDataRowModel model)
+        public static Transaction ExtractOutgoingTransfer(XlsDataRowModel model)
         {
             return new Transaction
             {
@@ -64,7 +66,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             };
         }
 
-        public static Transaction GetIngoingTransfer(this ExcelDataRowModel rowModel)
+        public static Transaction ExtractIngoingTransfer(XlsDataRowModel rowModel)
         {
             var accountName = rowModel.TransferDescription.ToLower().Contains("hype") ? "Hype" : rowModel.TransferDescription.ToLower().Contains("satispay") ? "Satispay" : string.Empty;
             return new Transaction
@@ -81,7 +83,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
         public static void AssignDateIfMissing(Transaction transaction, DateTime defaultDate)
         {
             var registeredDate = transaction.Date;
-            transaction.Date = (registeredDate == null) ? defaultDate : new DateTime(defaultDate.Year, registeredDate.Value.Month, registeredDate.Value.Day);
+            transaction.Date = registeredDate == null ? defaultDate : new DateTime(defaultDate.Year, registeredDate.Value.Month, registeredDate.Value.Day);
         }
     }
 }

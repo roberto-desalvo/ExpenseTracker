@@ -49,13 +49,18 @@ namespace RDS.ExpenseTracker.Business.Services
             return _mapper.Map<FinancialAccount>(entity);
         }
 
-        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<EFinancialAccount, bool>? filter = null)
+        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts()
+        {
+            return await GetFinancialAccounts(null);
+        }
+
+        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<IQueryable<EFinancialAccount>, IQueryable<EFinancialAccount>> filter)
         {
             var query = _context.FinancialAccounts.AsQueryable();
 
             if(filter != null)
             {
-                query = query.Where(x => filter.Invoke(x));
+                query = filter.Invoke(query);
             }
 
             var results = await query.ToListAsync();
@@ -66,17 +71,14 @@ namespace RDS.ExpenseTracker.Business.Services
         public async Task CalculateAvailabilities(IEnumerable<Transaction> transactions)
         {
             var accountIds = transactions.Select(x => x.FinancialAccountId).Distinct();
-            var tasks = new List<Task>();
+
             foreach(var id in accountIds)
             {
-                tasks.Add(Task.Factory.StartNew(async () =>
-                {
-                    var sum = transactions.Where(x => x.FinancialAccountId == id).Select(x => x.Amount).Sum();
-                    await UpdateAvailability(id, sum, false);
-                }));                
+                var sum = transactions.Where(x => x.FinancialAccountId == id).Select(x => x.Amount).Sum();
+                await UpdateAvailability(id, sum, false);               
             }
 
-            await Task.WhenAll(tasks).ContinueWith(async _ => await _context.SaveChangesAsync());
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateAvailability(int accountId, int amount, bool saveChanges)
@@ -108,5 +110,7 @@ namespace RDS.ExpenseTracker.Business.Services
                 await _context.SaveChangesAsync();
             }            
         }
+
+        
     }
 }

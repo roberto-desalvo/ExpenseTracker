@@ -4,15 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RDS.ExpenseTracker.Business.Helpers
+namespace RDS.ExpenseTracker.Business.Utilities
 {
-    public static class Utilities
+    public static class Utils
     {
         public static bool ContainsOne(this string str, params string[] compare)
         {
+            return ContainsOne(str, false, compare);
+        }
+
+        public static bool ContainsOne(this string str, bool ignoreCase, params string[] compare)
+        {
             foreach (var s in compare)
             {
-                if (str.Contains(s))
+                if (str.Contains(s, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture))
                 {
                     return true;
                 }
@@ -42,7 +47,7 @@ namespace RDS.ExpenseTracker.Business.Helpers
             return parsed ? parsedData : null;
         }
 
-        public static int? CubedDecimalToInt(decimal? value)
+        public static int? DecimalToCubedInt(decimal? value)
         {
             if (value == null)
             {
