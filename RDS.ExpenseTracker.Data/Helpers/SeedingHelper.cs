@@ -27,7 +27,7 @@ namespace RDS.ExpenseTracker.Data.Helpers
             yield return new ECategory { Id = 14, Priority = 13, Name = "Svago", Tags = "svago;calcetto;fantacalcio;gioco" };
             yield return new ECategory { Id = 15, Priority = 14, Name = "Sigarette", Tags = "tabacc;siga;" };
             yield return new ECategory { Id = 16, Priority = 15, Name = "Straordinarie", Tags = "xx" };
-            yield return new ECategory { Id = 17, Priority = 16, Name = "Altro", Tags = "aggiustament" };
+            yield return new ECategory { Id = 17, Priority = 16, Name = "Default", Tags = "aggiustament" };
         }
     }
 }
