@@ -1,31 +1,35 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using RDS.ExpenseTracker.Business.Helpers.Abstractions;
-using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Business.TransactionImport.Abstractions;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Collections.Generic;
+using RDS.ExpenseTracker.Business.TransactionImport.Parsers.Models;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly ICustomExcelReader _excelReader;
         private readonly IFinancialAccountService _accountService;
         private readonly ITransactionService _transactionService;
+        private readonly IXlsTransactionImporter? _xlsImporter;
 
-        public MainViewModel(ICustomExcelReader excelReader, IFinancialAccountService accountService, ITransactionService transactionService)
+        public MainViewModel(ITransactionImporterFactory importerFactory, IFinancialAccountService accountService, ITransactionService transactionService)
         {
-            _excelReader = excelReader;
             _accountService = accountService;
             _transactionService = transactionService;
-        }
+
+            if (GetXlsImporterConfig() is XlsImporterConfiguration config)
+            {
+                _xlsImporter = importerFactory.CreateXlsImporter(config);
+            }
+        }        
 
         [RelayCommand]
         private void Exit()
@@ -42,82 +46,80 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         [RelayCommand]
         private void ImportExcel()
         {
-            var path = ConfigurationManager.AppSettings.Get("ImportExcelFilePath")?.ToString() ?? string.Empty;
-
-            if (!Path.Exists(path))
+            if (_xlsImporter == null)
             {
-                MessageBox.Show("Il path del file spese non esiste");
+                MessageBox.Show("Problems with configuration, cannot import data");
+                return;
             }
 
-            var answer = MessageBox.Show("Vuoi sovrascrivere i dati esistenti?", "Import excel", MessageBoxButton.YesNoCancel);
+            var answer = MessageBox.Show("Would you like to overwrite existing data?", "Import excel", MessageBoxButton.YesNoCancel);
             if (answer == MessageBoxResult.Cancel)
             {
                 return;
             }
-            else if (answer == MessageBoxResult.Yes)
+
+            var overwriteExistingData = answer == MessageBoxResult.Yes;            
+
+            Task.Factory.StartNew(async () =>
             {
-                try
-                {
-                    _transactionService.DeleteAllTransactions();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Problemi durante la cancellazione delle transazioni: \n{ex.Message}");
-                    return;
-                }
-
-                if (ConfigurationManager.GetSection("InitValuesSection") is not NameValueCollection initValues)
-                {
-                    MessageBox.Show($"Configurazione non valida. Non ho trovato i valori iniziali");
-                    return;
-                }
-
-                var accounts = Task.Run(async () => await _accountService.GetFinancialAccounts()).Result;
-
-                foreach (var key in initValues.AllKeys)
-                {
-                    if (!int.TryParse(initValues[key], out int value))
-                    {
-                        MessageBox.Show($"Configurazione invalida: {key}");
-                        return;
-                    };
-
-                    if (accounts.FirstOrDefault(a => string.Equals(a.Name, key, StringComparison.InvariantCultureIgnoreCase))
-                        is not FinancialAccount account)
-                    {
-                        MessageBox.Show($"Account {key} non trovato");
-                        return;
-                    }
-
-                    account.Availability = value;
-                    _accountService.UpdateFinancialAccount(account);
-                }
-            }
-
-            Task.Factory.StartNew(() =>
-            {                             
-
-                MessageBox.Show("Import iniziato in backgroud...");
-
-                var list = _excelReader.GetTransactionsFromExcel(path);
-
-                if (!list.Any())
-                {
-                    MessageBox.Show("Non sono stati recuperati dati dal file excel");
-                    return;
-                }
+                MessageBox.Show("Import started in backgroud...");                
 
                 try
                 {
-                    _excelReader.SaveData(list);
-                    MessageBox.Show("Excel importato correttamente");
+                    await _xlsImporter.ImportTransactions(overwriteExistingData, true);
+                    MessageBox.Show("Xls successfully imported");
                     Refresh();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Errore durante il salvataggio dei dati: \n{ex.Message}");
+                    MessageBox.Show($"Error while importing transactions: \n{ex}\n{ex.Message}");
                 }
             });
+        }
+
+        private static XlsImporterConfiguration? GetXlsImporterConfig()
+        {
+            if (ConfigurationManager.GetSection("ImportSection") is not NameValueCollection values)
+            {
+                MessageBox.Show($"Transaction import config is not valid, please check it.");
+                return null;
+            }
+
+            var xlsFilePath = values["XlsFilePath"];
+            var sheetsToIgnore = values["XlsSheetsToIgnore"]?.Split(';', StringSplitOptions.None).Select(x => x.Trim()).ToList() ?? new List<string>();
+
+            if (xlsFilePath is null)
+            {
+                MessageBox.Show($"Config is not valid, please check xls file path.");
+                return null;
+            }
+
+            if (ConfigurationManager.GetSection("SetupSection") is not NameValueCollection setupValues)
+            {
+                MessageBox.Show($"Config is not valid, please check setup values.");
+                return null;
+            }
+
+            var config = new XlsImporterConfiguration(xlsFilePath, sheetsToIgnore);
+
+
+            foreach (var key in setupValues.AllKeys)
+            {
+                if(key is null)
+                {
+                    continue;
+                }
+
+                if (!int.TryParse(setupValues[key], out int value))
+                {
+                    MessageBox.Show($"Config is not valid, please check setup value: {key}");
+                    return null;
+                };
+
+                config.AccountInitialAmounts[key] = value;
+            }
+
+            return config;
         }
     }
 }

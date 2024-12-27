@@ -1,0 +1,128 @@
+[
+    {
+        "Id": 1,
+        "Priority": 1,
+        "Name": "SpostamentiDenaro",
+        "Description" : "Spostamenti di denaro",
+        "Tags": "bonifico hype;ricarica satispay"
+    },
+    {
+        "Id": 2,
+        "Priority": 2,
+        "Name": "Lavoro",
+        "Description": "Lavoro",
+        "Tags": "lavoro;salsedine;mare nostrum;msc"
+    },
+    {
+        "Id": 3,
+        "Priority": 3,
+        "Name": "Psicologia",
+        "Description": "Psicologia",
+        "Tags": "psicolog"
+    },
+    {
+        "Id": 4,
+        "Priority": 4,
+        "Name": "Spese_di_Casa",
+        "Description": "Affitto e spese per la casa",
+        "Tags": "casa;affitto;bollette"
+    },
+    {
+        "Id": 5,
+        "Priority": 5,
+        "Name": "Spesa",
+        "Description": "Spese",
+        "Tags": "spesa"
+    },
+    {
+        "Id": 6,
+        "Priority": 6,
+        "Name": "Salute",
+        "Description": "Salute e benessere",
+        "Tags": "farmaci;salute;medicine;integrator"
+    },
+    {
+        "Id": 7,
+        "Priority": 7,
+        "Name": "Pranzo",
+        "Description": "Pranzi fuori casa",
+        "Tags": "pranzo"
+    },
+    {
+        "Id": 8,
+        "Priority": 8,
+        "Name": "Cena",
+        "Description": "Cene fuori casa",
+        "Tags": "cena"
+    },
+    {
+        "Id": 9,
+        "Priority": 9,
+        "Name": "Bere",
+        "Description": "Bere",
+        "Tags": "bere;birra;cocktail"
+    },
+    {
+        "Id": 10,
+        "Priority": 10,
+        "Name": "Fuori",
+        "Description": "Uscite e spese varie fuori casa",
+        "Tags": "fuori"
+    },
+    {
+        "Id": 11,
+        "Priority": 11,
+        "Name": "Spostamenti",
+        "Description": "Spostamenti",
+        "Tags": "dott;gtt;metro;spostament"
+    },
+    {
+        "Id": 12,
+        "Priority": 12,
+        "Name": "Abbonamento",
+        "Description": "Abbonamenti",
+        "Tags": "abbonament"
+    },
+    {
+        "Id": 13,
+        "Priority": 13,
+        "Name": "Cibo_a_Domicilio",
+        "Description": "Cibo a domicilio",
+        "Tags": "glovo;just eat;uber;"
+    },
+    {
+        "Id": 14,
+        "Priority": 14,
+        "Name": "Svago",
+        "Description": "Svago",
+        "Tags": "svago;calcetto;fantacalcio;gioco"
+    },
+    {
+        "Id": 15,
+        "Priority": 15,
+        "Name": "Sigarette",
+        "Description": "Tabacco e sigarette",
+        "Tags": "tabacc;siga;"
+    },
+    {
+        "Id": 16,
+        "Priority": 16,
+        "Name": "Straordinarie",
+        "Description": "Spese straordinarie",
+        "Tags": "xx"
+    },
+    {
+        "Id": 17,
+        "Priority": 17,
+        "Name": "Default",
+        "Description": "Altro",
+        "Tags": "aggiustament"
+    },
+    {
+        "Id": 18,
+        "Priority": 18,
+        "Name": "Vestiti",
+        "Description": "Vestiti",
+        "Tags": "vestito;vestiti;vinted"
+    }
+]

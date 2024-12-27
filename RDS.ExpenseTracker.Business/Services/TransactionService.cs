@@ -24,13 +24,14 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task AddTransactions(IEnumerable<Transaction> transactions)
         {
-            var tasks = new List<Task>();
-            foreach (var transaction in transactions)
-            {
-                tasks.Add(Task.Factory.StartNew(async () => await AddTransaction(transaction, false)));                
-            }
+            var entites = _mapper.Map<IEnumerable<ETransaction>>(transactions);
+            await _context.Transactions.AddRangeAsync(entites);
+            await _context.SaveChangesAsync();            
+        }
 
-            await Task.WhenAll(tasks).ContinueWith(async _ => await _context.SaveChangesAsync());            
+        public async Task AddTransaction(Transaction transaction)
+        {
+            await AddTransaction(transaction, true);
         }
 
         public async Task AddTransaction(Transaction transaction, bool saveChanges)
@@ -79,7 +80,12 @@ namespace RDS.ExpenseTracker.Business.Services
             }
         }
 
-        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter = null)
+        public async Task<IEnumerable<Transaction>> GetTransactions()
+        {
+            return await GetTransactions(null);
+        }
+
+        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>> filter)
         {
             var query = _context.Transactions.AsQueryable();
 
@@ -95,7 +101,8 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task DeleteAllTransactions()
         {
-            _context.Transactions.RemoveRange();
+            var transactions = await _context.Transactions.ToListAsync();
+            _context.Transactions.RemoveRange(transactions);
             await _context.SaveChangesAsync();
         }
     }

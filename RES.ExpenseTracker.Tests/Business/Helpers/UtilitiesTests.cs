@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
-using RDS.ExpenseTracker.Business.Helpers;
+using RDS.ExpenseTracker.Business.TransactionImport.Parsers;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
 using System;
@@ -34,7 +34,7 @@ namespace RDS.ExpenseTracker.Tests.Business.Helpers
         public static void ParseDateFromSheetName_WhenCalled_ShoulParseCorrectly(string text, DateTime expected)
         {
 
-            var result = ExcelReaderUtilities.ParseDateFromSheetName(text);
+            var result = XlsParserUtilities.ParseDateFromSheetName(text);
             result.Should().Be(expected);
         }
     }

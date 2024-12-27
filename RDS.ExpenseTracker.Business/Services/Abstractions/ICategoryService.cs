@@ -9,6 +9,7 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface ICategoryService
     {
+        Task<Category> GetDefaultCategory();
         Task<IEnumerable<Category>> GetCategories();
     }
 }
