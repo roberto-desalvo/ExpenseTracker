@@ -21,6 +21,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FinancialAccountDto>))]
         public async Task<IResult> Get()
         {
             try
@@ -36,6 +37,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialAccountDto))]
         public async Task<IResult> Get(int id)
         {
             try
@@ -51,6 +53,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpGet("{id}/availability")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         public async Task<IResult> GetAvailability(int id)
         {
             try
@@ -65,6 +68,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         public async Task<IResult> Post([FromBody] FinancialAccountDto dto)
         {
             var account = _mapper.Map<FinancialAccount>(dto);
@@ -81,6 +85,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialAccountDto))]
         public async Task<IResult> Put(int id, [FromBody] FinancialAccountDto dto)
         {
             var account = _mapper.Map<FinancialAccount>(dto);
@@ -97,6 +102,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IResult> Delete(int id)
         {
             try

@@ -21,11 +21,16 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IResult> Get()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TransactionDto>))]
+        public async Task<IResult> Get(
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate
+            )
         {
             try
             {
-                var results = await _service.GetTransactions();
+                var results = await _service.GetTransactions(transactions => transactions
+                    .Where(t => (t.Date <= (toDate ?? DateTime.MaxValue)) &&  (t.Date >= (fromDate ?? DateTime.MinValue))));
                 var dtos = _mapper.Map<IEnumerable<TransactionDto>>(results);
                 return Results.Ok(dtos);
             }
@@ -36,6 +41,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionDto))]
         public async Task<IResult> Get(int id)
         {
             try
@@ -51,6 +57,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         public async Task<IResult> Post([FromBody] TransactionDto dto)
         {
             var transaction = _mapper.Map<Transaction>(dto);
@@ -67,6 +74,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TransactionDto>))]
         public async Task<IResult> Put(int id, [FromBody] TransactionDto dto)
         {
             var transaction = _mapper.Map<Transaction>(dto);
@@ -83,6 +91,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IResult> Delete(int id)
         {
             try
