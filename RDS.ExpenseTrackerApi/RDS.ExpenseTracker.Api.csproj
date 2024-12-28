@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Dtos\Requests\**" />
     <Compile Remove="Dtos\Responses\**" />
+    <Content Remove="Dtos\Requests\**" />
     <Content Remove="Dtos\Responses\**" />
+    <EmbeddedResource Remove="Dtos\Requests\**" />
     <EmbeddedResource Remove="Dtos\Responses\**" />
+    <None Remove="Dtos\Requests\**" />
     <None Remove="Dtos\Responses\**" />
   </ItemGroup>
 
@@ -26,10 +30,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
 	<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Dtos\Requests\" />
   </ItemGroup>
 
   <ItemGroup>

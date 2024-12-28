@@ -94,6 +94,9 @@ namespace RDS.ExpenseTracker.Business.Services
                 query = filter.Invoke(query);
             }
 
+            query = query.Include(x => x.FinancialAccount);
+            query = query.Include(x => x.Category);
+
             var results = await query.ToListAsync();
 
             return _mapper.Map<IEnumerable<Transaction>>(results);

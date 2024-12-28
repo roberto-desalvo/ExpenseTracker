@@ -10,13 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var corsPolicyLiveServer = "AllowLiveServer";
+var localhostCorsPolicy = "Debug";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(corsPolicyLiveServer,
+    options.AddPolicy(localhostCorsPolicy,
         builder =>
         {
-            builder.WithOrigins("http://127.0.0.1:5500")
+            builder.WithOrigins("http://127.0.0.1:5500", "http://127.0.0.1:5173", "http://localhost:5500", "http://localhost:5173")
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
@@ -35,6 +35,8 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
+app.UseCors(localhostCorsPolicy);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -43,7 +45,6 @@ if (app.Environment.IsDevelopment())
 
 app.AddTransactionEndpoints();
 app.AddFinancialAccountEndpoints();
-app.UseCors(corsPolicyLiveServer);
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
