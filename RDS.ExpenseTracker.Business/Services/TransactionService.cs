@@ -29,12 +29,12 @@ namespace RDS.ExpenseTracker.Business.Services
             await _context.SaveChangesAsync();            
         }
 
-        public async Task AddTransaction(Transaction transaction)
+        public async Task<int> AddTransaction(Transaction transaction)
         {
-            await AddTransaction(transaction, true);
+            return await AddTransaction(transaction, true);
         }
 
-        public async Task AddTransaction(Transaction transaction, bool saveChanges)
+        public async Task<int> AddTransaction(Transaction transaction, bool saveChanges)
         {
             var entity = _mapper.Map<ETransaction>(transaction);
 
@@ -44,6 +44,8 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 await _context.SaveChangesAsync();
             }
+
+            return entity.Id;
         }
 
         public async Task DeleteTransaction(int id)

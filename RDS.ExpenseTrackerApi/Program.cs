@@ -1,8 +1,7 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Data;
-using RDS.ExpenseTrackerApi.Endpoints;
 using RDS.ExpenseTrackerApi.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +30,7 @@ builder.Services.AddAutoMapper(x => x.AddProfile(typeof(ExpenseTrackerApiProfile
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IFinancialAccountService, FinancialAccountService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -43,8 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.AddTransactionEndpoints();
-app.AddFinancialAccountEndpoints();
+app.MapControllers();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();

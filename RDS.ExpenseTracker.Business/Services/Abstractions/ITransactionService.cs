@@ -9,10 +9,10 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         Task<IEnumerable<Transaction>> GetTransactions();
         Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>> filter);
         Task AddTransactions(IEnumerable<Transaction> transactions);
-        Task AddTransaction(Transaction transaction, bool saveChanges);
         Task UpdateTransaction(Transaction transaction);
         Task DeleteTransaction(int id);
         Task DeleteAllTransactions();
-        Task AddTransaction(Transaction transaction);
+        Task<int> AddTransaction(Transaction transaction);
+        Task<int> AddTransaction(Transaction transaction, bool saveChanges);
     }
 }
