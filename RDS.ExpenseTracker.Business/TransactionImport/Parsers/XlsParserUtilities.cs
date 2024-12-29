@@ -48,7 +48,7 @@ namespace RDS.ExpenseTracker.Business.TransactionImport.Parsers
                 Description = model.TransactionDescription,
                 FinancialAccountName = model.TransactionAccountName,
                 IsTransfer = false,
-                CategoryName = string.Empty
+                CategoryDescription = string.Empty
             };
 
             return transaction;
