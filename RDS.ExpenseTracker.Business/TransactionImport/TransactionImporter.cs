@@ -59,9 +59,13 @@ namespace RDS.ExpenseTracker.Business.TransactionImport
 
             foreach (var transaction in transactions)
             {
-                foreach (var category in categories.OrderBy(x => x.Priority, Comparer<int>.Default))
+                var orderedCategories = categories.OrderBy(x => x.Priority, Comparer<int>.Default);
+
+                foreach (var category in orderedCategories)
                 {
-                    if (transaction.Description.ContainsOne(category.Tags.Select(x => x.Trim()).ToArray()))
+                    var tags = category.Tags.Select(tag => tag.Trim()).Where(tag => !string.IsNullOrWhiteSpace(tag)).ToArray();
+
+                    if (transaction.Description.ContainsOne(ignoreCase: true, tags))
                     {
                         transaction.CategoryId = category.Id;
                         break;
