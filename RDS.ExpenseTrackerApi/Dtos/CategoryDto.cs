@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RDS.ExpenseTracker.Business.Models
+﻿namespace RDS.ExpenseTracker.Api.Dtos
 {
-    public class Category
+    public class CategoryDto
     {
         public int Id { get; set; }
         public int Priority { get; set; }
