@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RDS.ExpenseTracker.Api.Dtos;
-using RDS.ExpenseTracker.Business.Models;
-using RDS.ExpenseTracker.Data.Entities;
+using RDS.ExpenseTracker.Domain.Models;
+using RDS.ExpenseTracker.DataAccess.Entities;
 
 namespace RDS.ExpenseTracker.Api.Helpers
 {

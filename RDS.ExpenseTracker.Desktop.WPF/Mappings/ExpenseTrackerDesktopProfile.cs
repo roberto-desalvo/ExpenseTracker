@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using RDS.ExpenseTracker.Business.Models;
-using RDS.ExpenseTracker.Data.Entities;
+using RDS.ExpenseTracker.Domain.Models;
+using RDS.ExpenseTracker.DataAccess.Entities;
 using RDS.ExpenseTracker.Desktop.WPF.Models;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using System;

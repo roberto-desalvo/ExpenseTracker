@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using RDS.ExpenseTracker.Api.Dtos;
-using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Api.Dtos;
 

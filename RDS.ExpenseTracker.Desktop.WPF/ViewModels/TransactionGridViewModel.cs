@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CommunityToolkit.Mvvm.ComponentModel;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Data.Entities;
+using RDS.ExpenseTracker.DataAccess.Entities;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using RDS.ExpenseTracker.Desktop.WPF.Models;
 using System;

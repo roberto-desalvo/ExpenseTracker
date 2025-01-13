@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using RDS.ExpenseTracker.Business.TransactionImport.Abstractions;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Desktop.WPF.Commands;
 using System;
@@ -10,7 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Collections.Generic;
-using RDS.ExpenseTracker.Business.TransactionImport.Parsers.Models;
+using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models;
+using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
+using RDS.ExpenseTracker.Business.DataImport;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
@@ -18,16 +19,17 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
     {
         private readonly IFinancialAccountService _accountService;
         private readonly ITransactionService _transactionService;
-        private readonly IXlsTransactionImporter? _xlsImporter;
+        private readonly CustomExcelImportService? _excelImporter;
 
-        public MainViewModel(ITransactionImporterFactory importerFactory, IFinancialAccountService accountService, ITransactionService transactionService)
+        public MainViewModel(IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService)
         {
             _accountService = accountService;
             _transactionService = transactionService;
 
-            if (GetXlsImporterConfig() is XlsImporterConfiguration config)
+            if (GetXlsImporterConfig() is CustomExcelImporterConfiguration config)
             {
-                _xlsImporter = importerFactory.CreateXlsImporter(config);
+                var parser = new CustomExcelTransactionDataParser(config);
+                _excelImporter =new CustomExcelImportService(parser, accountService, transactionService, categoryService);
             }
         }        
 
@@ -46,19 +48,17 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         [RelayCommand]
         private void ImportExcel()
         {
-            if (_xlsImporter == null)
+            if (_excelImporter == null)
             {
                 MessageBox.Show("Problems with configuration, cannot import data");
                 return;
             }
 
-            var answer = MessageBox.Show("Would you like to overwrite existing data?", "Import excel", MessageBoxButton.YesNoCancel);
-            if (answer == MessageBoxResult.Cancel)
+            var answer = MessageBox.Show("You are going to override existing data. You want still want to proceed?", "Excel import", MessageBoxButton.YesNo);
+            if (answer != MessageBoxResult.Yes)
             {
                 return;
-            }
-
-            var overwriteExistingData = answer == MessageBoxResult.Yes;            
+            }          
 
             Task.Factory.StartNew(async () =>
             {
@@ -66,8 +66,8 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 
                 try
                 {
-                    await _xlsImporter.ImportTransactions(overwriteExistingData, true);
-                    MessageBox.Show("Xls successfully imported");
+                    await _excelImporter.ImportTransactions();
+                    MessageBox.Show("Excel successfully imported");
                     Refresh();
                 }
                 catch (Exception ex)
@@ -77,7 +77,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
             });
         }
 
-        private static XlsImporterConfiguration? GetXlsImporterConfig()
+        private static CustomExcelImporterConfiguration? GetXlsImporterConfig()
         {
             if (ConfigurationManager.GetSection("ImportSection") is not NameValueCollection values)
             {
@@ -100,7 +100,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
                 return null;
             }
 
-            var config = new XlsImporterConfiguration(xlsFilePath, sheetsToIgnore);
+            var config = new CustomExcelImporterConfiguration(xlsFilePath, sheetsToIgnore);
 
 
             foreach (var key in setupValues.AllKeys)

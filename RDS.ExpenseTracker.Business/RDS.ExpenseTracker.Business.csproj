@@ -15,7 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RDS.ExpenseTracker.Data\RDS.ExpenseTracker.Data.csproj" />
+    <ProjectReference Include="..\RDS.ExpenseTracker.DataAccess\RDS.ExpenseTracker.DataAccess.csproj" />
+    <ProjectReference Include="..\RDS.ExpenseTracker.Data\RDS.ExpenseTracker.DataAccess.csproj" />
+    <ProjectReference Include="..\RDS.ExpenseTracker.Domain\RDS.ExpenseTracker.Domain.csproj" />
+    <ProjectReference Include="..\RDS.ExpenseTracker.Importer\RDS.ExpenseTracker.Importer.csproj" />
   </ItemGroup>
 
 </Project>
