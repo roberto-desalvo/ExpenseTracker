@@ -55,9 +55,14 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<Category> GetDefaultCategory()
         {
-            var entity = await _context.Categories.AsQueryable()
-                .Where(c => c.Name.ToLower().Trim() == "default")
-                .FirstOrDefaultAsync();
+            var defaultCategoryId = 1;
+            var entity = await _context.Categories.FindAsync(defaultCategoryId); 
+
+            if(entity == null)
+            {
+                var defaultCategoryName = "default";
+                entity = await _context.Categories.FirstOrDefaultAsync(c => c.Name.ToLowerInvariant() == defaultCategoryName);
+            }
 
             return _mapper.Map<Category>(entity);
         }

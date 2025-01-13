@@ -2,9 +2,8 @@
 using RDS.ExpenseTracker.Api.Dtos;
 using RDS.ExpenseTracker.Business.Models;
 using RDS.ExpenseTracker.Data.Entities;
-using RDS.ExpenseTrackerApi.Dtos;
 
-namespace RDS.ExpenseTrackerApi.Helpers
+namespace RDS.ExpenseTracker.Api.Helpers
 {
     public class ExpenseTrackerApiProfile : Profile
     {
