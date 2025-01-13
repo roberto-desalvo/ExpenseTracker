@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Data.Entities;
-using RDS.ExpenseTracker.Data.Helpers;
+using RDS.ExpenseTracker.Data.Seeds;
 
 namespace RDS.ExpenseTracker.Data
 {
@@ -23,7 +23,18 @@ namespace RDS.ExpenseTracker.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer("");
+            // for dev purpose only
+            // optionsBuilder.UseSqlServer("");
+
+            optionsBuilder.UseAsyncSeeding(async (context, _, cancellationToken) =>
+            {
+                if (!context.Set<ECategory>().Any())
+                {
+                    var seedCategories = SeedData.GetSeedCategories();
+                    context.Set<ECategory>().AddRange(seedCategories);
+                    await context.SaveChangesAsync(cancellationToken);
+                }
+            });
 
             base.OnConfiguring(optionsBuilder);
         }
@@ -45,7 +56,7 @@ namespace RDS.ExpenseTracker.Data
             .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ECategory>()
-                .HasData(SeedingHelper.GetSeedCategories());
+                .HasData(SeedData.GetSeedCategories());
         }
     }
 }

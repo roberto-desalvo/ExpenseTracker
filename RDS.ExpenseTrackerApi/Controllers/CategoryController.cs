@@ -39,11 +39,39 @@ namespace RDS.ExpenseTracker.Api.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IResult> Get(int id)
         {
             try
             {
                 var category = await _service.GetCategory(id);
+                if (category == null)
+                {
+                    return Results.NoContent();
+                }
+
+                var dto = _mapper.Map<CategoryDto>(category);
+                return Results.Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        }
+
+        [HttpGet("default")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IResult> GetDefault()
+        {
+            try
+            {
+                var category = await _service.GetDefaultCategory();
+                if(category == null)
+                {
+                    return Results.NoContent();
+                }
+
                 var dto = _mapper.Map<CategoryDto>(category);
                 return Results.Ok(dto);
             }
