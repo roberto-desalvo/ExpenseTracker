@@ -1,6 +1,6 @@
 ﻿
 
-namespace RDS.ExpenseTrackerApi.Dtos
+namespace RDS.ExpenseTracker.Api.Dtos
 {
     public class TransactionDto
     {
