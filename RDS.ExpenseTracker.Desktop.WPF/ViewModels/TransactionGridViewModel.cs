@@ -18,7 +18,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         private readonly IMapper _mapper;
 
         [ObservableProperty]
-        private ObservableCollection<TransactionGridModel> transactions = new();
+        private ObservableCollection<TransactionGridRowModel> transactions = new();
 
         public TransactionGridViewModel(ITransactionService transactionService, IMapper mapper)
         {
@@ -36,10 +36,8 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         public void Refresh(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter)
         {
             var transactions = Task.Run(async () => await _transactionService.GetTransactions(filter)).Result;
-            var models = _mapper.Map<IEnumerable<TransactionGridModel>>(transactions).OrderByDescending(x => x.Date);
-            Transactions = new ObservableCollection<TransactionGridModel>(models);
+            var models = _mapper.Map<IEnumerable<TransactionGridRowModel>>(transactions).OrderByDescending(x => x.Date);
+            Transactions = new ObservableCollection<TransactionGridRowModel>(models);
         }
-
-
     }
 }
