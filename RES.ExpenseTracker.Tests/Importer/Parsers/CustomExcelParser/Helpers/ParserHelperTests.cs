@@ -1,11 +1,12 @@
 ﻿using FluentAssertions;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
+using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Helpers;
 
-namespace RDS.ExpenseTracker.Tests.Business.Helpers
+namespace RDS.ExpenseTracker.Tests.Importer.Parsers.CustomExcelParser.Helpers
 {
-    public class UtilitiesTests
+    public class ParserHelperTests
     {
-        public static IEnumerable<object[]> GetTestData() 
+        public static IEnumerable<object[]> GetTestData()
         {
             yield return new object[] { "gennaio 2021 ", new DateTime(2021, 1, 1) };
             yield return new object[] { " Febbraio2021", new DateTime(2021, 2, 1) };
@@ -26,7 +27,7 @@ namespace RDS.ExpenseTracker.Tests.Business.Helpers
         public static void ParseDateFromSheetName_WhenCalled_ShoulParseCorrectly(string text, DateTime expected)
         {
 
-            var result = CustomExcelParserUtilities.ParseDateFromSheetName(text);
+            var result = ParserHelper.ParseDateFromSheetName(text);
             result.Should().Be(expected);
         }
     }
