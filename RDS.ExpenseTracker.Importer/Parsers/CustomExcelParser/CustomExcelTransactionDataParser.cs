@@ -47,7 +47,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
                 .SelectMany(GetTransactionsFromRow)
                 .Select(transaction =>
             {
-                AssignDateIfMissing(transaction, defaultDate);
+                ParserHelper.CheckAndAssignDate(transaction, defaultDate);
                 return transaction;
             });
 
@@ -119,13 +119,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             };
 
             return transaction;
-        }
-
-        public static void AssignDateIfMissing(Transaction transaction, DateTime defaultDate)
-        {
-            var registeredDate = transaction.Date;
-            transaction.Date = registeredDate == null ? defaultDate : new DateTime(defaultDate.Year, registeredDate.Value.Month, registeredDate.Value.Day);
-        }
+        }        
         #endregion
 
         #region Public Methods

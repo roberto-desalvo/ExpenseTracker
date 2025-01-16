@@ -1,8 +1,9 @@
 ﻿using FluentAssertions;
+using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Helpers;
 
-namespace RDS.ExpenseTracker.Tests.Importer.Parsers.CustomExcelParser.Helpers
+namespace RDS.ExpenseTracker.Importer.Tests.Parsers.CustomExcelParser.Helpers
 {
     public class ParserHelperTests
     {
@@ -26,9 +27,42 @@ namespace RDS.ExpenseTracker.Tests.Importer.Parsers.CustomExcelParser.Helpers
         [MemberData(nameof(GetTestData))]
         public static void ParseDateFromSheetName_WhenCalled_ShoulParseCorrectly(string text, DateTime expected)
         {
-
             var result = ParserHelper.ParseDateFromSheetName(text);
             result.Should().Be(expected);
         }
-    }
+
+        [Fact]
+        public void CheckAndAssignDate_WhenTransactionDateIsNull_ShouldAssignDefaultDate()
+        {
+            var transaction = new Transaction { Date = null };
+            var defaultDate = new DateTime(2021, 1, 1);
+
+            ParserHelper.CheckAndAssignDate(transaction, defaultDate);
+
+            transaction.Date.Should().Be(defaultDate);
+        }
+
+        [Fact]
+        public void CheckAndAssignDate_WhenTransactionDateIsNotNull_ShoulNotAssignDefaultDate()
+        {
+            var originalDate = new DateTime(2021, 2, 2);
+            var transaction = new Transaction { Date =  originalDate };
+            var defaultDate = new DateTime(2021, 1, 1);
+
+            ParserHelper.CheckAndAssignDate(transaction, defaultDate);
+
+            transaction.Date.Should().NotBe(defaultDate);
+        }
+
+        [Fact]
+        public void CheckAndAssignDate_WhenTransactionDateIsNotNull_ShouldAssignDefaultDateYear()
+        {
+            var originalDate = new DateTime(2021, 2, 2);
+            var transaction = new Transaction { Date = originalDate };
+            var defaultDate = new DateTime(2022, 1, 1);
+
+            ParserHelper.CheckAndAssignDate(transaction, defaultDate);
+
+            transaction.Date.Value.Year.Should().Be(defaultDate.Year);
+        }
 }

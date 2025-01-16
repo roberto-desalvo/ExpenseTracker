@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDS.ExpenseTracker.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -19,6 +20,12 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Helpers
             var month = Array.IndexOf(months, monthStr) + 1;
 
             return new DateTime(year, month, 1);
+        }
+
+        public static void CheckAndAssignDate(Transaction transaction, DateTime defaultDate)
+        {
+            var registeredDate = transaction.Date;
+            transaction.Date = registeredDate == null ? defaultDate : new DateTime(defaultDate.Year, registeredDate.Value.Month, registeredDate.Value.Day);
         }
     }
 }
