@@ -46,7 +46,7 @@ namespace RDS.ExpenseTracker.Importer.Tests.Parsers.CustomExcelParser.Helpers
         public void CheckAndAssignDate_WhenTransactionDateIsNotNull_ShoulNotAssignDefaultDate()
         {
             var originalDate = new DateTime(2021, 2, 2);
-            var transaction = new Transaction { Date =  originalDate };
+            var transaction = new Transaction { Date = originalDate };
             var defaultDate = new DateTime(2021, 1, 1);
 
             ParserHelper.CheckAndAssignDate(transaction, defaultDate);
@@ -65,4 +65,5 @@ namespace RDS.ExpenseTracker.Importer.Tests.Parsers.CustomExcelParser.Helpers
 
             transaction.Date.Value.Year.Should().Be(defaultDate.Year);
         }
+    }
 }
