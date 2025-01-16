@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using RDS.ExpenseTracker.Business.DataImport;
+using RDS.ExpenseTracker.Business.DataImport.Abstractions;
 using RDS.ExpenseTracker.Business.Mappings;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Business.TransactionImport;
-using RDS.ExpenseTracker.Business.TransactionImport.Abstractions;
-using RDS.ExpenseTracker.Data;
+using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Desktop.WPF.Mappings;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using RDS.ExpenseTracker.Desktop.WPF.Views;
 using RDS.ExpenseTracker.Desktop.WPF.Views.Controls;
+using RDS.ExpenseTracker.Importer.Parsers.Abstractions;
+using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
 using System;
 using System.Configuration;
 using System.Windows;
@@ -49,7 +51,9 @@ namespace RDS.ExpenseTracker.Desktop.WPF
             services.AddScoped<IFinancialAccountService, FinancialAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ITransactionImporterFactory, TransactionImporterFactory>();
+            services.AddScoped<ITransactionDataParser, CustomExcelTransactionDataParser>();
+            services.AddScoped<ITransactionImportService, TransactionImportService>();
+            services.AddScoped<CustomExcelImportService>();
 
             // views
             services.AddSingleton<MainView>();

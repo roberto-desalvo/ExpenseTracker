@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Data;
+using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Api.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);

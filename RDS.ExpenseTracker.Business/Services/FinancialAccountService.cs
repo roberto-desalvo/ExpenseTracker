@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using RDS.ExpenseTracker.Business.Models;
+using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Data;
-using RDS.ExpenseTracker.Data.Entities;
+using RDS.ExpenseTracker.DataAccess;
+using RDS.ExpenseTracker.DataAccess.Entities;
 using System.Linq;
 
 namespace RDS.ExpenseTracker.Business.Services

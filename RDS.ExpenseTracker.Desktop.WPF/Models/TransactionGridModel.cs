@@ -1,4 +1,4 @@
-﻿using RDS.ExpenseTracker.Business.Models;
+﻿using RDS.ExpenseTracker.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
