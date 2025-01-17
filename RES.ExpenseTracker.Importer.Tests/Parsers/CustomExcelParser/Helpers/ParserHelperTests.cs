@@ -32,6 +32,20 @@ namespace RDS.ExpenseTracker.Importer.Tests.Parsers.CustomExcelParser.Helpers
         }
 
         [Fact]
+        public void ParseDateFromSheetName_WhenMonthIsInvalid_ShouldThrowFormatException()
+        {
+            Action act = () => ParserHelper.ParseDateFromSheetName("invalidMonth 2021");
+            act.Should().Throw<FormatException>();
+        }
+
+        [Fact]
+        public void ParseDateFromSheetName_WhenYearIsInvalid_ShouldThrowFormatException()
+        {
+            Action act = () => ParserHelper.ParseDateFromSheetName("gennaio invalidYear");
+            act.Should().Throw<FormatException>();
+        }
+
+        [Fact]
         public void CheckAndAssignDate_WhenTransactionDateIsNull_ShouldAssignDefaultDate()
         {
             var transaction = new Transaction { Date = null };
@@ -43,7 +57,7 @@ namespace RDS.ExpenseTracker.Importer.Tests.Parsers.CustomExcelParser.Helpers
         }
 
         [Fact]
-        public void CheckAndAssignDate_WhenTransactionDateIsNotNull_ShoulNotAssignDefaultDate()
+        public void CheckAndAssignDate_WhenTransactionDateIsNotNull_ShouldNotAssignDefaultDate()
         {
             var originalDate = new DateTime(2021, 2, 2);
             var transaction = new Transaction { Date = originalDate };

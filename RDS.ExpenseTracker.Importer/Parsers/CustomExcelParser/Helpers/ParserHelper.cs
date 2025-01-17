@@ -12,14 +12,21 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Helpers
     {
         public static DateTime ParseDateFromSheetName(string name)
         {
-            var index = name.IndexOf('2');
-            var year = int.Parse(name[index..].Trim());
-            var monthStr = name[..index].Trim().ToLower();
+            try
+            {
+                var index = name.IndexOf('2');
+                var year = int.Parse(name[index..].Trim());
+                var monthStr = name[..index].Trim().ToLower();
 
-            var months = new CultureInfo("it-IT").DateTimeFormat.MonthNames.Select(x => x.ToLowerInvariant()).ToArray();
-            var month = Array.IndexOf(months, monthStr) + 1;
+                var months = new CultureInfo("it-IT").DateTimeFormat.MonthNames.Select(x => x.ToLowerInvariant()).ToArray();
+                var month = Array.IndexOf(months, monthStr) + 1;
 
-            return new DateTime(year, month, 1);
+                return new DateTime(year, month, 1);
+            }
+            catch (Exception)
+            {
+                throw new FormatException($"Invalid date format, please check date form sheet {name}");
+            }
         }
 
         public static void CheckAndAssignDate(Transaction transaction, DateTime defaultDate)

@@ -7,23 +7,32 @@ using ExcelDataReader;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models;
 using RDS.ExpenseTracker.Importer.Utilities;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Helpers;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("RDS.ExpenseTracker.Importer.Tests")]
 
 namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
 {
-    public class CustomExcelTransactionDataParser : ITransactionDataParser
+    public class ExcelTransactionDataParser : ITransactionDataParser
     {
-        private readonly CustomExcelImporterConfiguration _config;
-        public CustomExcelImporterConfiguration Config => _config;
+        private readonly ExcelImporterConfiguration _config;
+        private readonly IExcelFileReader _excelFileReader;
+        public ExcelImporterConfiguration Config => _config;
 
         #region Constructors
-        public CustomExcelTransactionDataParser(CustomExcelImporterConfiguration config)
+        protected ExcelTransactionDataParser() // for testing purposes only
+        {
+            
+        }
+        public ExcelTransactionDataParser(IExcelFileReader excelFileReader, ExcelImporterConfiguration config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _excelFileReader = excelFileReader ?? throw new ArgumentNullException(nameof(excelFileReader));
         }
         #endregion
 
         #region Private Methods 
-        private IEnumerable<Transaction> GetTransactionsFromRow(DataRow row)
+        internal IEnumerable<Transaction> GetTransactionsFromRow(DataRow row)
         {
             var model = GetDataRowModel(row);
 
@@ -39,7 +48,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             }
         }
 
-        private IEnumerable<Transaction> GetTransactionsFromDataTable(DataTable dataTable)
+        internal IEnumerable<Transaction> GetTransactionsFromDataTable(DataTable dataTable)
         {
             var defaultDate = ParserHelper.ParseDateFromSheetName(dataTable.TableName);
             var dataRows = dataTable.Rows.Cast<DataRow>();
@@ -52,14 +61,14 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             });
 
             return transactions;
-        }        
+        }
 
-        private CustomExcelDataRowModel GetDataRowModel(DataRow dataRow)
+        internal ExcelDataRowModel GetDataRowModel(DataRow dataRow)
         {
             var transactionOutflow = Utils.DecimalToCubedInt(dataRow[Config.TransactionOutflowIndex].ParseToDecimal()) ?? 0;
             var transactionInflow = Utils.DecimalToCubedInt(dataRow[Config.TransactionInflowIndex].ParseToDecimal()) ?? 0;
 
-            var model = new CustomExcelDataRowModel
+            var model = new ExcelDataRowModel
             {
                 TransactionDate = dataRow[Config.TransactionDateIndex].ParseToDateTime(),
                 TransactionDescription = dataRow[Config.TransactionDescriptionIndex]?.ToString() ?? string.Empty,
@@ -73,7 +82,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             return model;
         }
 
-        private Transaction ExtractStandardTransaction(CustomExcelDataRowModel model)
+        internal Transaction ExtractStandardTransaction(ExcelDataRowModel model)
         {
             var transaction = new Transaction
             {
@@ -88,7 +97,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             return transaction;
         }
 
-        private Transaction ExtractOutgoingTransfer(CustomExcelDataRowModel model)
+        internal Transaction ExtractOutgoingTransfer(ExcelDataRowModel model)
         {
             var transaction = new Transaction
             {
@@ -102,7 +111,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
             return transaction;
         }
 
-        private Transaction ExtractIngoingTransfer(CustomExcelDataRowModel rowModel)
+        internal Transaction ExtractIngoingTransfer(ExcelDataRowModel rowModel)
         {
             var accountName = rowModel.TransferDescription.ToLower().Contains(Config.SecondAccountName.ToLower())
                 ? Config.SecondAccountName
@@ -127,11 +136,8 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
         {
             try
             {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                using var stream = File.Open(_config.FilePath, FileMode.Open, FileAccess.Read);
-                using var reader = ExcelReaderFactory.CreateReader(stream);
-
-                var dataTables = reader.AsDataSet().Tables.Cast<DataTable>();
+                var dataSet = _excelFileReader.ReadExcelFile(_config.FilePath);
+                var dataTables = dataSet.Tables.Cast<DataTable>();
                 var sheetsToIgnore = _config.SheetsToIgnore.ToArray();
 
                 var filteredTables = dataTables.Where(dt => !dt.TableName.ToLower().ContainsOne(sheetsToIgnore));
