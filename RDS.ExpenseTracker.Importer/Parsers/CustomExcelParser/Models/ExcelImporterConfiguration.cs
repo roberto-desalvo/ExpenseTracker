@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models
 {
-    public class CustomExcelImporterConfiguration
+    public class ExcelImporterConfiguration
     {
         public string FilePath { get; set; } = string.Empty;
         public IList<string> SheetsToIgnore { get; set; } = [];

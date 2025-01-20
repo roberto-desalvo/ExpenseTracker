@@ -30,8 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RDS.ExpenseTracker.Business\RDS.ExpenseTracker.Business.csproj" />
     <ProjectReference Include="..\RDS.ExpenseTracker.Importer\RDS.ExpenseTracker.Importer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Utilities\" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Helpers
         private const string TransferAmountIndexConfigField = "TransferAmountIndex";
 
 
-        public static CustomExcelImporterConfiguration? GetImporterConfig(out string errorMessage)
+        public static ExcelImporterConfiguration? GetImporterConfig(out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -35,7 +35,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Helpers
                 return null;
             }
 
-            var config = new CustomExcelImporterConfiguration();
+            var config = new ExcelImporterConfiguration();
 
             config.SheetsToIgnore = values[SheetsToIgnoreConfigField]?.Split(';', StringSplitOptions.None).Select(x => x.Trim()).ToList() ?? [];
 

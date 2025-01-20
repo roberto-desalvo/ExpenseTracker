@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models
 {
-    public class CustomExcelDataRowModel
+    public class ExcelDataRowModel
     {
         public DateTime? TransactionDate { get; set; }
         public string TransactionDescription { get; set; } = string.Empty;

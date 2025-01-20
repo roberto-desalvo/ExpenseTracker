@@ -8,9 +8,9 @@ namespace RDS.ExpenseTracker.Business.DataImport
     public class CustomExcelImportService : TransactionImportService
     {
         private readonly ITransactionImportService _importService;
-        protected new CustomExcelTransactionDataParser _parser => (CustomExcelTransactionDataParser)base._parser;
+        protected new ExcelTransactionDataParser _parser => (ExcelTransactionDataParser)base._parser;
 
-        public CustomExcelImportService(CustomExcelTransactionDataParser parser, IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService) : base(parser, accountService, transactionService, categoryService)
+        public CustomExcelImportService(ExcelTransactionDataParser parser, IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService) : base(parser, accountService, transactionService, categoryService)
         {
             _importService = new TransactionImportService(parser, accountService, transactionService, categoryService);
         }

@@ -16,10 +16,6 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
                 .Build();
 
             yield return CategoryBuilder.Create()
-                .WithName("Miscellaneous").WithDescription("Miscellaneous")
-                .Build();
-
-            yield return CategoryBuilder.Create()
                 .WithName("Money tranfers").WithDescription("Money transfers")
                 .Build();
 
@@ -48,6 +44,10 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
                 .Build();
 
             yield return CategoryBuilder.Create()
+                .WithName("Clothes").WithDescription("Clothes and accessories")
+                .Build();
+
+            yield return CategoryBuilder.Create()
                 .WithName("Savings and investments").WithDescription("Savings and investments")
                 .Build();            
 
@@ -63,7 +63,7 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
 
             protected CategoryBuilder()
             {
-                category = new();
+                category = new ECategory { Id = -1 };
             }
 
             public static CategoryBuilder Create() => new();

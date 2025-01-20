@@ -9,6 +9,7 @@ using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
 using RDS.ExpenseTracker.Business.DataImport;
 using RDS.ExpenseTracker.Desktop.WPF.Helpers;
+using RDS.ExpenseTracker.Importer.Parsers.Abstractions;
 
 namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
 {
@@ -18,14 +19,14 @@ namespace RDS.ExpenseTracker.Desktop.WPF.ViewModels
         private readonly ITransactionService _transactionService;
         private readonly CustomExcelImportService? _excelImporter;
 
-        public MainViewModel(IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService)
+        public MainViewModel(IFinancialAccountService accountService, ITransactionService transactionService, ICategoryService categoryService, IExcelFileReader excelReader)
         {
             _accountService = accountService;
             _transactionService = transactionService;
 
-            if (ConfigHelper.GetImporterConfig(out var errorMessage) is CustomExcelImporterConfiguration config)
+            if (ConfigHelper.GetImporterConfig(out var errorMessage) is ExcelImporterConfiguration config)
             {
-                var parser = new CustomExcelTransactionDataParser(config);
+                var parser = new ExcelTransactionDataParser(excelReader, config);
                 _excelImporter = new CustomExcelImportService(parser, accountService, transactionService, categoryService);
             }
             else

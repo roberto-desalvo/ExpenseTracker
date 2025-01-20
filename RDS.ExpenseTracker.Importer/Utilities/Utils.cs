@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace RDS.ExpenseTracker.Importer.Utilities
             {
                 return null;
             }
-            var parsed = decimal.TryParse(obj.ToString(), out var parsedObj);
+            var parsed = decimal.TryParse(obj.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedObj);
 
             return parsed ? parsedObj : null;
         }

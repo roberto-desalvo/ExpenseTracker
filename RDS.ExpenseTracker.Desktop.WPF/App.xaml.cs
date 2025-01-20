@@ -10,6 +10,7 @@ using RDS.ExpenseTracker.Desktop.WPF.Mappings;
 using RDS.ExpenseTracker.Desktop.WPF.ViewModels;
 using RDS.ExpenseTracker.Desktop.WPF.Views;
 using RDS.ExpenseTracker.Desktop.WPF.Views.Controls;
+using RDS.ExpenseTracker.Importer.Parsers;
 using RDS.ExpenseTracker.Importer.Parsers.Abstractions;
 using RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser;
 using System;
@@ -51,8 +52,9 @@ namespace RDS.ExpenseTracker.Desktop.WPF
             services.AddScoped<IFinancialAccountService, FinancialAccountService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ITransactionDataParser, CustomExcelTransactionDataParser>();
+            services.AddScoped<ITransactionDataParser, ExcelTransactionDataParser>();
             services.AddScoped<ITransactionImportService, TransactionImportService>();
+            services.AddScoped<IExcelFileReader, ExcelFileReader>();
             services.AddScoped<CustomExcelImportService>();
 
             // views

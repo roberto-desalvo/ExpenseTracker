@@ -23,12 +23,9 @@ namespace RDS.ExpenseTracker.DataAccess
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // for dev purpose only
-            // optionsBuilder.UseSqlServer("");
-
             optionsBuilder.UseAsyncSeeding(async (context, _, cancellationToken) =>
             {
-                if (!context.Set<ECategory>().Any())
+                if (!await context.Set<ECategory>().AsNoTracking().AnyAsync(cancellationToken))
                 {
                     var seedCategories = SeedData.GetSeedCategories();
                     context.Set<ECategory>().AddRange(seedCategories);
@@ -54,9 +51,6 @@ namespace RDS.ExpenseTracker.DataAccess
                 .WithOne(x => x.Category)
                 .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ECategory>()
-                .HasData(SeedData.GetSeedCategories());
         }
     }
 }
