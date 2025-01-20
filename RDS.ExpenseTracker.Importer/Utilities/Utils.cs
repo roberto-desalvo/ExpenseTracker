@@ -32,7 +32,7 @@ namespace RDS.ExpenseTracker.Importer.Utilities
             {
                 return null;
             }
-            var parsed = decimal.TryParse(obj.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedObj);
+            var parsed = decimal.TryParse(obj.ToString(), out var parsedObj);
 
             return parsed ? parsedObj : null;
         }
