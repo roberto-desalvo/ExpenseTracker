@@ -10,19 +10,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var debugCorsPolicy = "Debug";
-if (builder.Environment.IsDevelopment())
+builder.Services.AddCors(options =>
 {
-    builder.Services.AddCors(options =>
-    {
-        options.AddPolicy(debugCorsPolicy,
-            builder =>
-            {
-                builder.WithOrigins("http://127.0.0.1:5500", "http://127.0.0.1:5173")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            });
-    });
-}
+    options.AddPolicy(debugCorsPolicy,
+        builder =>
+        {
+            builder.WithOrigins("http://127.0.0.1:5500", "http://127.0.0.1:5173")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
     x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
@@ -37,9 +35,10 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 
+app.UseCors(debugCorsPolicy);
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors(debugCorsPolicy);
     app.UseSwagger();
     app.UseSwaggerUI();
 }
