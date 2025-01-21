@@ -87,7 +87,7 @@ namespace RDS.ExpenseTracker.Business.Services
             return await GetTransactions(null);
         }
 
-        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>> filter)
+        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter)
         {
             var query = _context.Transactions.AsQueryable();
 

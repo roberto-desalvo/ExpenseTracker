@@ -10,7 +10,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models
     {
         public string FilePath { get; set; } = string.Empty;
         public IList<string> SheetsToIgnore { get; set; } = [];
-        public Dictionary<string, int> AccountInitialAmounts { get; set; } = [];
+        public Dictionary<string, decimal> AccountInitialAmounts { get; set; } = [];
         public string FirstAccountName { get; set; } = string.Empty;
         public string SecondAccountName { get; set; } = string.Empty;
         public string ThirdAccountName { get; set; } = string.Empty;

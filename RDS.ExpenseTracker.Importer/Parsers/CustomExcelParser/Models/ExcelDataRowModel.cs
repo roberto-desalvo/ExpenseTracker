@@ -10,10 +10,10 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser.Models
     {
         public DateTime? TransactionDate { get; set; }
         public string TransactionDescription { get; set; } = string.Empty;
-        public int TransactionAmount { get; set; }
+        public decimal TransactionAmount { get; set; }
         public string TransactionAccountName { get; set; } = string.Empty;
         public DateTime? TransferDate { get; set; }
         public string TransferDescription { get; set; } = string.Empty;
-        public int TransferAmount { get; set; }
+        public decimal TransferAmount { get; set; }
     }
 }

@@ -81,7 +81,7 @@ namespace RDS.ExpenseTracker.Business.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAvailability(int accountId, int amount, bool saveChanges)
+        public async Task<bool> UpdateAvailability(int accountId, decimal amount, bool saveChanges)
         {
             var accountEntity = await _context.FinancialAccounts.FirstOrDefaultAsync(x => x.Id == accountId);
             if (accountEntity == null)

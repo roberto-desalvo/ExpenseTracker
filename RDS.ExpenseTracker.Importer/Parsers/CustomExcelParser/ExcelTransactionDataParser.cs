@@ -65,8 +65,8 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
 
         internal ExcelDataRowModel GetDataRowModel(DataRow dataRow)
         {
-            var transactionOutflow = Utils.DecimalToCubedInt(dataRow[Config.TransactionOutflowIndex].ParseToDecimal()) ?? 0;
-            var transactionInflow = Utils.DecimalToCubedInt(dataRow[Config.TransactionInflowIndex].ParseToDecimal()) ?? 0;
+            var transactionOutflow = dataRow[Config.TransactionOutflowIndex].ParseToDecimal() ?? 0;
+            var transactionInflow = dataRow[Config.TransactionInflowIndex].ParseToDecimal() ?? 0;
 
             var model = new ExcelDataRowModel
             {
@@ -76,7 +76,7 @@ namespace RDS.ExpenseTracker.Importer.Parsers.CustomExcelParser
                 TransactionAccountName = dataRow[Config.TransactionAccountNameIndex]?.ToString() ?? string.Empty,
                 TransferDate = dataRow[Config.TransferDateIndex].ParseToDateTime(),
                 TransferDescription = dataRow[Config.TransferDescriptionIndex]?.ToString() ?? string.Empty,
-                TransferAmount = Utils.DecimalToCubedInt(dataRow[Config.TransferAmountIndex].ParseToDecimal()) ?? 0
+                TransferAmount = dataRow[Config.TransferAmountIndex].ParseToDecimal() ?? 0
             };
 
             return model;
