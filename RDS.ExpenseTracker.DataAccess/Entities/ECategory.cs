@@ -13,6 +13,7 @@ namespace RDS.ExpenseTracker.DataAccess.Entities
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
+        public bool IsDefault { get; set; }
         public ICollection<ETransaction>? Transactions { get; set; }
     }
 }

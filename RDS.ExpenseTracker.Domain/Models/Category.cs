@@ -12,6 +12,7 @@ namespace RDS.ExpenseTracker.Domain.Models
         public int Priority { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public IEnumerable<string> Tags { get; set; } = Enumerable.Empty<string>();
+        public bool IsDefault { get; set; }
+        public IEnumerable<string> Tags { get; set; } = [];
     }
 }

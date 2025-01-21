@@ -21,19 +21,19 @@ namespace RDS.ExpenseTracker.DataAccess
         }
         #endregion
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder opt)
         {
-            optionsBuilder.UseAsyncSeeding(async (context, _, cancellationToken) =>
+            opt.UseSeeding((context, _) =>
             {
-                if (!await context.Set<ECategory>().AsNoTracking().AnyAsync(cancellationToken))
+                if (!context.Set<ECategory>().AsNoTracking().Any())
                 {
                     var seedCategories = SeedData.GetSeedCategories();
                     context.Set<ECategory>().AddRange(seedCategories);
-                    await context.SaveChangesAsync(cancellationToken);
+                    context.SaveChanges();
                 }
             });
 
-            base.OnConfiguring(optionsBuilder);
+            base.OnConfiguring(opt);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
