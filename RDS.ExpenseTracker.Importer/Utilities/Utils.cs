@@ -48,16 +48,6 @@ namespace RDS.ExpenseTracker.Importer.Utilities
             return parsed ? parsedData : null;
         }
 
-        public static int? DecimalToCubedInt(decimal? value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-            var result = (int)(value * 100);
-            return result;
-        }
-
         public static bool IsNullOrZero(this int? num)
         {
             return num == null || num == 0;

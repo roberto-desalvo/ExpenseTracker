@@ -67,7 +67,7 @@ namespace RDS.ExpenseTracker.Business.Tests.DataImport
 
             var config = new ExcelImporterConfiguration
             {
-                AccountInitialAmounts = new Dictionary<string, int>
+                AccountInitialAmounts = new Dictionary<string, decimal>
                 {
                     { "Account1", 1000 }
                 }
@@ -91,7 +91,7 @@ namespace RDS.ExpenseTracker.Business.Tests.DataImport
 
             var config = new ExcelImporterConfiguration
             {
-                AccountInitialAmounts = new Dictionary<string, int>
+                AccountInitialAmounts = new Dictionary<string, decimal>
                 {
                     { "Account1", 1000 }
                 }
@@ -118,7 +118,7 @@ namespace RDS.ExpenseTracker.Business.Tests.DataImport
 
             var config = new ExcelImporterConfiguration
             {
-                AccountInitialAmounts = new Dictionary<string, int>
+                AccountInitialAmounts = new Dictionary<string, decimal>
                 {
                     { "Account1", 1000 }
                 }
@@ -142,7 +142,7 @@ namespace RDS.ExpenseTracker.Business.Tests.DataImport
 
             var config = new ExcelImporterConfiguration
             {
-                AccountInitialAmounts = new Dictionary<string, int>
+                AccountInitialAmounts = new Dictionary<string, decimal>
                 {
                     { "Account1", 1000 }
                 }

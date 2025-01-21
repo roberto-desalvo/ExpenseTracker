@@ -128,32 +128,6 @@ namespace RDS.ExpenseTracker.Importer.Tests.Utilities
         }
 
         [Fact]
-        public void DecimalToCubedInt_WhenValueIsNull_ShouldReturnNull()
-        {
-            // Arrange
-            decimal? value = null;
-
-            // Act
-            var result = Utils.DecimalToCubedInt(value);
-
-            // Assert
-            result.Should().BeNull();
-        }
-
-        [Fact]
-        public void DecimalToCubedInt_WhenValueIsNotNull_ShouldReturnCubedInt()
-        {
-            // Arrange
-            decimal? value = 1.23m;
-
-            // Act
-            var result = Utils.DecimalToCubedInt(value);
-
-            // Assert
-            result.Should().Be(123);
-        }
-
-        [Fact]
         public void IsNullOrZero_WhenNumberIsNull_ShouldReturnTrue()
         {
             // Arrange

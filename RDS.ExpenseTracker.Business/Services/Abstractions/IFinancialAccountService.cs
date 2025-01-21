@@ -11,7 +11,7 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         Task<FinancialAccount?> GetFinancialAccount(int id);
         Task<IEnumerable<FinancialAccount>> GetFinancialAccounts();
         Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<IQueryable<EFinancialAccount>, IQueryable<EFinancialAccount>> filter);
-        Task<bool> UpdateAvailability(int accountId, int amount, bool saveChanges);
+        Task<bool> UpdateAvailability(int accountId, decimal amount, bool saveChanges);
         Task<decimal> GetAvailability(int accountId);
         Task CalculateAvailabilities(IEnumerable<Transaction> transactions);
     }

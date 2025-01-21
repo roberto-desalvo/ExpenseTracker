@@ -131,7 +131,7 @@ namespace RDS.ExpenseTracker.Desktop.WPF.Helpers
                     continue;
                 }
 
-                if (!int.TryParse(setupValues[key], out int value))
+                if (!decimal.TryParse(setupValues[key], out decimal value))
                 {
                     errorMessage = $"Config is not valid, please check setup value: {key}";
                     return null;
