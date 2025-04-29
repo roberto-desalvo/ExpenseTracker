@@ -7,19 +7,24 @@ using RDS.ExpenseTracker.Api.Helpers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var debugCorsPolicy = "Debug";
-builder.Services.AddCors(options =>
+
+if (builder.Environment.IsDevelopment())
 {
-    options.AddPolicy(debugCorsPolicy,
-        builder =>
-        {
-            builder.WithOrigins("http://127.0.0.1:5500", "http://127.0.0.1:5173")
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
-});
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(debugCorsPolicy,
+            builder =>
+            {
+                builder.WithOrigins("http://127.0.0.1:5500", "http://127.0.0.1:5173", "http://localhost:5500", "http://localhost:5173")
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
+    });
+}
+
 
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
