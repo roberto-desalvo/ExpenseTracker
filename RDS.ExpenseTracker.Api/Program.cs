@@ -3,6 +3,7 @@ using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Api.Helpers;
+using RDS.ExpenseTracker.DataAccess.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,8 +29,14 @@ if (builder.Environment.IsDevelopment())
 
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
-    x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
-    );
+{
+    var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
+    var keyVaultUri = keyVaultConfigSection["Uri"];
+    var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
+    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
+    x.UseSqlServer(connectionString);
+});
+    
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
 builder.Services.AddScoped<ITransactionService, TransactionService>();
