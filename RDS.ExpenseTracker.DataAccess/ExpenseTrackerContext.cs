@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.DataAccess.Entities;
 using RDS.ExpenseTracker.DataAccess.Seeds;
+using RDS.ExpenseTracker.DataAccess.Utilities;
 
 namespace RDS.ExpenseTracker.DataAccess
 {
@@ -20,10 +21,13 @@ namespace RDS.ExpenseTracker.DataAccess
 
         }
         #endregion
-
-        protected override void OnConfiguring(DbContextOptionsBuilder opt)
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            opt.UseSeeding((context, _) =>
+            // for rapidly applying migrations; dev purposes only
+            //optionsBuilder.UseSqlServer(AzureKeyVaultHandler.GetKeyVaultSecret(kvUri, secretName));
+
+            optionsBuilder.UseSeeding((context, _) =>
             {
                 if (!context.Set<ECategory>().AsNoTracking().Any())
                 {
@@ -33,7 +37,7 @@ namespace RDS.ExpenseTracker.DataAccess
                 }
             });
 
-            base.OnConfiguring(opt);
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
