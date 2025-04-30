@@ -5,6 +5,8 @@ using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Api.Helpers;
 using RDS.ExpenseTracker.DataAccess.Utilities;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -27,16 +29,34 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
-
-
-builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
+try
 {
-    var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
-    var keyVaultUri = keyVaultConfigSection["Uri"];
-    var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
-    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
-    x.UseSqlServer(connectionString);
-});
+    builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
+    {
+        var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
+        var keyVaultUri = keyVaultConfigSection["Uri"];
+        var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
+        var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
+        x.UseSqlServer(connectionString);
+    });
+}
+catch (Exception ex)
+{
+    var message = $"Startup failed: {ex}";
+
+    try
+    {
+        File.AppendAllText("fatal.log", $"{DateTime.Now}: {message}{Environment.NewLine}");
+    }
+    catch
+    {
+        Console.WriteLine(message);
+    }
+
+    throw;
+}
+
+
 
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
