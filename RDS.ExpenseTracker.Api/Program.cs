@@ -11,9 +11,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 var debugCorsPolicy = "Debug";
 
+builder.Services.AddSwaggerGen();
+
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddSwaggerGen();
     builder.Services.AddCors(options =>
     {
         options.AddPolicy(debugCorsPolicy,
@@ -36,7 +37,7 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
     var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
     x.UseSqlServer(connectionString);
 });
-    
+
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -49,11 +50,9 @@ var app = builder.Build();
 
 app.UseCors(debugCorsPolicy);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.MapControllers();
 
