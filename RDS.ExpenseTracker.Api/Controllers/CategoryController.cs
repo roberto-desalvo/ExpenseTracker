@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using RDS.ExpenseTracker.Api.Dtos;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Api.Dtos;
 
 
 namespace RDS.ExpenseTracker.Api.Controllers
@@ -33,7 +32,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             }
             catch (Exception ex)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem($"{ex}, {ex.Message}");
             }
         }
 

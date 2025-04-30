@@ -29,34 +29,15 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
-try
+
+builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 {
-    builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
-    {
-        var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
-        var keyVaultUri = keyVaultConfigSection["Uri"];
-        var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
-        var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
-        x.UseSqlServer(connectionString);
-    });
-}
-catch (Exception ex)
-{
-    var message = $"Startup failed: {ex}";
-
-    try
-    {
-        File.AppendAllText("fatal.log", $"{DateTime.Now}: {message}{Environment.NewLine}");
-    }
-    catch
-    {
-        Console.WriteLine(message);
-    }
-
-    throw;
-}
-
-
+    var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
+    var keyVaultUri = keyVaultConfigSection["Uri"];
+    var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
+    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
+    x.UseSqlServer(connectionString);
+});
 
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
