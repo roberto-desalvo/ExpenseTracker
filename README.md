@@ -16,15 +16,8 @@ and to enhance the control of exposed features of EF Core to the business layer.
 This project is responsible for the orchestration of the business operations of the application. 
 In particular it contains some abstractions that connects to other parts of the application (for example the data access and the data import layer) and uses them to interconnect these components.
 
-### RDS.ExpenseTracker.Importer
-This project is responsible for data import from third part sources. At the moment it is only handling data import from predefined excel files, 
-while it is planned to connect to other sopurces in the next future.
-
 ### RDS.ExpenseTracker.Api
 This project is an ASP.NET project responsible for exposing the application data and functionalities through a web api.
-
-### RDS.ExpenseTracker.WPF
-This project is an experimental WPF user interface built with MVVM patterns.
 
 ### RDS.ExpenseTracker.Tests
 This project contains all the unit tests of the application
