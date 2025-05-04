@@ -34,13 +34,6 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration.AddEnvironmentVariables();
 
-foreach (var kvp in Environment.GetEnvironmentVariables().Cast<DictionaryEntry>())
-{
-    Console.WriteLine($"{kvp.Key} = {kvp.Value}");
-}
-
-Console.WriteLine(builder.Configuration.GetSection("AzureAd")?.ToString());
-
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 {
     var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
