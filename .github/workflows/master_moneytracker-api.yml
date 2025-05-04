@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - MoneyTracker-Api
 
 on:
@@ -13,13 +10,7 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
-
-    env:
-      AZUREAD__INSTANCE: ${{ secrets.AZURE_AD_INSTANCE }}
-      AZUREAD__TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-      AZUREAD__CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
-      AZUREAD__AUDIENCE: ${{ secrets.AZURE_AD_AUDIENCE }}
+      contents: read # Required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -48,21 +39,32 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F0655A4BC0C94521AA3751C9FDB3C465 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6F70F26519B54B4FA9A4A9476AAA4372 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6690DFB85D444A60A06320A3997DFECF }}
+
+      - name: Set Azure App Settings from GitHub Secrets
+        shell: pwsh
+        run: |
+          az webapp config appsettings set --name MoneyTracker-Api `
+            --resource-group MyResourceGroup `
+            --settings `
+              AZUREAD__INSTANCE="${{ secrets.AZURE_AD_INSTANCE }}" `
+              AZUREAD__TENANTID="${{ secrets.AZURE_AD_TENANTID }}" `
+              AZUREAD__CLIENTID="${{ secrets.AZURE_AD_CLIENTID }}" `
+              AZUREAD__AUDIENCE="${{ secrets.AZURE_AD_AUDIENCE }}"
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -71,4 +73,3 @@ jobs:
           app-name: 'MoneyTracker-Api'
           slot-name: 'Production'
           package: .
-          
