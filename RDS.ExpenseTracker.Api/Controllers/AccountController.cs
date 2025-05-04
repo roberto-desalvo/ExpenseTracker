@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace RDS.ExpenseTracker.Api.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
