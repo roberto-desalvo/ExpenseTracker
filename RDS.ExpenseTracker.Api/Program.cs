@@ -6,6 +6,7 @@ using RDS.ExpenseTracker.Api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using RDS.ExpenseTracker.DataAccess.Utilities;
+using System.Collections;
 
 
 
@@ -32,6 +33,13 @@ if (builder.Environment.IsDevelopment())
 }
 
 builder.Configuration.AddEnvironmentVariables();
+
+foreach (var kvp in Environment.GetEnvironmentVariables().Cast<DictionaryEntry>())
+{
+    Console.WriteLine($"{kvp.Key} = {kvp.Value}");
+}
+
+Console.WriteLine(builder.Configuration.GetSection("AzureAd")?.ToString());
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 {
