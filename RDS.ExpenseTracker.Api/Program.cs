@@ -3,6 +3,8 @@ using RDS.ExpenseTracker.Business.Services;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Api.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,9 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
-
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
     x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
@@ -48,8 +52,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
-app.UseHttpsRedirection();
 app.Run();
 

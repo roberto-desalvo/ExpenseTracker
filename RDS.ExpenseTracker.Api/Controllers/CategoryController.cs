@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using RDS.ExpenseTracker.Api.Dtos;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.Api.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace RDS.ExpenseTracker.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
