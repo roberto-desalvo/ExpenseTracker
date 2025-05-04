@@ -31,6 +31,7 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 {
