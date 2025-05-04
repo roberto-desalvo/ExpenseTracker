@@ -34,7 +34,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             }
             catch (Exception ex)
             {
-                return Results.Problem(ex.Message);
+                return Results.Problem($"{ex}, {ex.Message}");
             }
         }
 

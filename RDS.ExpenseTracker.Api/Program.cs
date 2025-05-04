@@ -5,6 +5,9 @@ using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.Api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+using RDS.ExpenseTracker.DataAccess.Utilities;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +15,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 var debugCorsPolicy = "Debug";
 
+builder.Services.AddSwaggerGen();
+
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddSwaggerGen();
     builder.Services.AddCors(options =>
     {
         options.AddPolicy(debugCorsPolicy,
@@ -27,13 +31,20 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
+
+builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
+{
+    var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
+    var keyVaultUri = keyVaultConfigSection["Uri"];
+    var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
+    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
+    x.UseSqlServer(connectionString);
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 builder.Services.AddAuthorization();
 
-builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
-    x.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
-    );
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -46,11 +57,9 @@ var app = builder.Build();
 
 app.UseCors(debugCorsPolicy);
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
