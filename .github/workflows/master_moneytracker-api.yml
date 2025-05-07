@@ -62,10 +62,9 @@ jobs:
             --resource-group MoneyTracker `
             --settings `
               AZUREAD__INSTANCE="${{ secrets.AZURE_AD_INSTANCE }}" `
-              AZUREAD__TENANTID="${{ secrets.AZURE_AD_TENANTID }}" `
-              AZUREAD__CLIENTID="${{ secrets.AZURE_AD_CLIENTID }}" `
+              AZUREAD__TENANT_ID="${{ secrets.AZURE_AD_TENANTID }}" `
+              AZUREAD__CLIENT_ID="${{ secrets.AZURE_AD_CLIENTID }}" `
               AZUREAD__AUDIENCE="${{ secrets.AZURE_AD_AUDIENCE }}" `
-              KEYVAULT__URI="${{ secrets.KEY_VAULT_URL }}" `
               KEYVAULT__URI="${{ secrets.KEY_VAULT_URL }}" `
               KEYVAULT__CONNECTIONSTRINGSECRETNAME="${{ secrets.KEY_VAULT_CONN_STR_NAME }}"
 
