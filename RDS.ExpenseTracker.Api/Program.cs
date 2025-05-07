@@ -35,21 +35,6 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration.AddEnvironmentVariables();
 
-Trace.WriteLine("Environment Variables:");
-foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
-{
-    Trace.WriteLine($"{entry.Key}: {entry.Value}");
-}
-
-var config = builder.Configuration.GetSection("AzureAd");
-
-Trace.WriteLine("AzureAd Configuration:");
-foreach (var key in config.GetChildren())
-{
-    Trace.WriteLine($"{key.Key}: {key.Value}");
-}
-
-
 builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
 {
     var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
@@ -83,7 +68,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers().RequireAuthorization();
+app.MapControllers();
 
 app.Run();
 

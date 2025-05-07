@@ -61,12 +61,13 @@ jobs:
           az webapp config appsettings set --name MoneyTracker-Api `
             --resource-group MoneyTracker `
             --settings `
-              AZUREAD__0__INSTANCE="${{ secrets.AZURE_AD_INSTANCE }}" `
-              AZUREAD__0__TENANTID="${{ secrets.AZURE_AD_TENANTID }}" `
-              AZUREAD__0__CLIENTID="${{ secrets.AZURE_AD_CLIENTID }}" `
-              AZUREAD__0__AUDIENCE="${{ secrets.AZURE_AD_AUDIENCE }}" `
-              KEYVAULT__0__URI="${{ secrets.KEY_VAULT_URL }}" `
-              KEYVAULT__0__CONNECTIONSTRINGSECRETNAME="${{ secrets.KEY_VAULT_CONN_STR_NAME }}"
+              AZUREAD__INSTANCE="${{ secrets.AZURE_AD_INSTANCE }}" `
+              AZUREAD__TENANTID="${{ secrets.AZURE_AD_TENANTID }}" `
+              AZUREAD__CLIENTID="${{ secrets.AZURE_AD_CLIENTID }}" `
+              AZUREAD__AUDIENCE="${{ secrets.AZURE_AD_AUDIENCE }}" `
+              KEYVAULT__URI="${{ secrets.KEY_VAULT_URL }}" `
+              KEYVAULT__URI="${{ secrets.KEY_VAULT_URL }}" `
+              KEYVAULT__CONNECTIONSTRINGSECRETNAME="${{ secrets.KEY_VAULT_CONN_STR_NAME }}"
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
