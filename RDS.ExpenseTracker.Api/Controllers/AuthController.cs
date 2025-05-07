@@ -4,7 +4,6 @@ using System.Security.Claims;
 
 namespace RDS.ExpenseTracker.Api.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
