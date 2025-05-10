@@ -12,12 +12,10 @@ namespace RDS.ExpenseTracker.Business.Services
         private readonly IMapper _mapper;
         private readonly ExpenseTrackerContext _context;
         private readonly IFinancialAccountService _accountService;
-        private readonly ICategoryService _categoryService;
 
-        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService, ICategoryService categoryService)
+        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -26,6 +24,10 @@ namespace RDS.ExpenseTracker.Business.Services
         {
             var entites = _mapper.Map<IEnumerable<ETransaction>>(transactions);
             await _context.Transactions.AddRangeAsync(entites);
+            foreach (var transaction in entites)
+            {
+                await _accountService.UpdateAvailability(transaction.FinancialAccountId, transaction.Amount, false);
+            }
             await _context.SaveChangesAsync();            
         }
 
@@ -39,6 +41,7 @@ namespace RDS.ExpenseTracker.Business.Services
             var entity = _mapper.Map<ETransaction>(transaction);
 
             await _context.Transactions.AddAsync(entity);
+            await _accountService.UpdateAvailability(entity.FinancialAccountId, entity.Amount, false);
 
             if (saveChanges)
             {
@@ -54,6 +57,7 @@ namespace RDS.ExpenseTracker.Business.Services
             if (entity != null)
             {
                 _context.Transactions.Remove(entity);
+                await _accountService.UpdateAvailability(entity.FinancialAccountId, -entity.Amount, false);
                 await _context.SaveChangesAsync();
             }
         }
@@ -108,7 +112,17 @@ namespace RDS.ExpenseTracker.Business.Services
         {
             var transactions = await _context.Transactions.ToListAsync();
             _context.Transactions.RemoveRange(transactions);
+            foreach (var transaction in transactions)
+            {
+                await _accountService.UpdateAvailability(transaction.FinancialAccountId, -transaction.Amount, false);
+            }
             await _context.SaveChangesAsync();
+        }
+
+        public async Task ResetTransactions(IEnumerable<Transaction> transactions)
+        {
+            await DeleteAllTransactions();
+            await AddTransactions(transactions);
         }
     }
 }

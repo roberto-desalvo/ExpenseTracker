@@ -14,5 +14,6 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         Task DeleteAllTransactions();
         Task<int> AddTransaction(Transaction transaction);
         Task<int> AddTransaction(Transaction transaction, bool saveChanges);
+        Task ResetTransactions(IEnumerable<Transaction> transactions);
     }
 }
