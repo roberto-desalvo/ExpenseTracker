@@ -123,7 +123,6 @@ namespace RDS.ExpenseTracker.Business.Services
         {
             await DeleteAllTransactions();
             await AddTransactions(transactions);
-            // update availabilities
         }
     }
 }

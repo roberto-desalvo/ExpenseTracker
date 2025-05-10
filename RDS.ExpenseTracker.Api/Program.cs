@@ -8,8 +8,7 @@ using Microsoft.Identity.Web;
 using RDS.ExpenseTracker.DataAccess.Utilities;
 using System.Collections;
 using System.Diagnostics;
-
-
+using RDS.ExpenseTracker.Api.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,13 +34,13 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration.AddEnvironmentVariables();
 
-builder.Services.AddDbContext<ExpenseTrackerContext>(x =>
+builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
 {
-    var keyVaultConfigSection = builder.Configuration.GetSection("KeyVault");
-    var keyVaultUri = keyVaultConfigSection["Uri"];
-    var connectionStringSecretName = keyVaultConfigSection["ConnectionStringSecretName"];
-    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(keyVaultUri, connectionStringSecretName);
-    x.UseSqlServer(connectionString);
+    var kvOptions = new KeyVault();
+    builder.Configuration.GetSection(nameof(KeyVault)).Bind(kvOptions);
+    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(kvOptions.Uri, kvOptions.ConnectionStringSecretName);
+    optBuilder.UseSqlServer(connectionString, sqlServerBuilder => sqlServerBuilder.EnableRetryOnFailure());
+    
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

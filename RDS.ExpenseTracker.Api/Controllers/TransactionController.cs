@@ -76,6 +76,23 @@ namespace RDS.ExpenseTracker.Api.Controllers
             }
         }
 
+        [HttpPost("/reset")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
+        public async Task<IResult> Reset([FromBody] IEnumerable<TransactionDto> dtos)
+        {
+            var transactions = _mapper.Map<IEnumerable<Transaction>>(dtos);
+
+            try
+            {
+                await _service.ResetTransactions(transactions);
+                return Results.Ok();
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"{ex} {ex.Message}");
+            }
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionDto))]
         public async Task<IResult> Put(int id, [FromBody] TransactionDto dto)
