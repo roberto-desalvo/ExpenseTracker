@@ -4,6 +4,8 @@ using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Api.Dtos;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Identity.Web;
+using RDS.ExpenseTracker.Api.Auth;
 
 
 namespace RDS.ExpenseTracker.Api.Controllers
@@ -31,7 +33,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             try
             {
                 var results = await _service.GetTransactions(transactions => transactions
-                    .Where(t => (t.Date <= (toDate ?? DateTime.MaxValue)) &&  (t.Date >= (fromDate ?? DateTime.MinValue))));
+                    .Where(t => (t.Date <= (toDate ?? DateTime.MaxValue)) && (t.Date >= (fromDate ?? DateTime.MinValue))));
                 var dtos = _mapper.Map<IEnumerable<TransactionDto>>(results);
                 return Results.Ok(dtos);
             }
@@ -54,7 +56,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             catch (Exception ex)
             {
                 return Results.Problem(ex.Message);
-            }            
+            }
         }
 
         [HttpPost]
@@ -75,7 +77,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TransactionDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionDto))]
         public async Task<IResult> Put(int id, [FromBody] TransactionDto dto)
         {
             var transaction = _mapper.Map<Transaction>(dto);
@@ -84,6 +86,23 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.UpdateTransaction(transaction);
                 return Results.Ok(transaction);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"{ex} {ex.Message}");
+            }
+        }
+
+        [AuthorizeForScopes(Scopes = [Scopes.TransactionResetter])]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IResult> Put([FromBody] IEnumerable<TransactionDto> transactionDtos)
+        {
+            var transactions = _mapper.Map<IEnumerable<Transaction>>(transactionDtos);
+            try
+            {
+                await _service.ResetTransactions(transactions);
+                return Results.Ok();
             }
             catch (Exception ex)
             {
