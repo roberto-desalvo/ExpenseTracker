@@ -11,6 +11,7 @@ using System.Diagnostics;
 using RDS.ExpenseTracker.Api.Options;
 using Serilog;
 using RDS.ExpenseTracker.Api.Middlewares;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +25,9 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
 
 var debugCorsPolicy = "Debug";
-
-builder.Services.AddSwaggerGen();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -51,13 +51,12 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
     builder.Configuration.GetSection(nameof(KeyVault)).Bind(kvOptions);
     var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(kvOptions.Uri, kvOptions.ConnectionStringSecretName);
     optBuilder.UseSqlServer(connectionString, sqlServerBuilder => sqlServerBuilder.EnableRetryOnFailure());
-    
+
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 builder.Services.AddAuthorization();
-
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -67,13 +66,13 @@ builder.Services.AddControllers();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
+app.MapOpenApi();
+app.MapScalarApiReference();
 
-
-app.UseCors(debugCorsPolicy);
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(debugCorsPolicy);
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -81,8 +80,8 @@ app.UseAuthorization();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-app.MapControllers()
-    .RequireAuthorization();
+app.MapControllers();
+    //.RequireAuthorization();
 
 app.Run();
 

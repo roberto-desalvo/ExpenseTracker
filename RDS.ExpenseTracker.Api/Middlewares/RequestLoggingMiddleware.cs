@@ -18,8 +18,6 @@
                 context.Request.Path,
                 context.Connection.RemoteIpAddress?.ToString());
 
-            _logger.LogInformation("Request Headers: {Headers}", context.Request.Headers);
-
             await _next(context);
         }
     }
