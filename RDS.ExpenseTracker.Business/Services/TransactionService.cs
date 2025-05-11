@@ -122,6 +122,11 @@ namespace RDS.ExpenseTracker.Business.Services
         public async Task ResetTransactions(IEnumerable<Transaction> transactions)
         {
             await DeleteAllTransactions();
+            var accounts = await _accountService.GetFinancialAccounts();
+            foreach (var account in accounts)
+            {
+                await _accountService.UpdateAvailability(account.Id, 0, false);
+            }
             await AddTransactions(transactions);
         }
     }
