@@ -107,6 +107,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
         {
             try
             {
+                _logger.LogInformation("Received transactions: {transactions}", transactionDtos.Count());
                 var transactions = _mapper.Map<IEnumerable<Transaction>>(transactionDtos);
                 await _service.ResetTransactions(transactions);
                 _logger.LogInformation("Transactions reset successfully");

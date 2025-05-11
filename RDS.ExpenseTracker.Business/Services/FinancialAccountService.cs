@@ -5,6 +5,7 @@ using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.DataAccess.Entities;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
@@ -12,11 +13,13 @@ namespace RDS.ExpenseTracker.Business.Services
     {
         private readonly IMapper _mapper;
         private readonly ExpenseTrackerContext _context;
+        private readonly ILogger<FinancialAccountService> _logger;
 
-        public FinancialAccountService(IMapper mapper, ExpenseTrackerContext context)
+        public FinancialAccountService(IMapper mapper, ExpenseTrackerContext context, ILogger<FinancialAccountService> logger)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<int> AddFinancialAccount(FinancialAccount account)
@@ -34,6 +37,10 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 _context.FinancialAccounts.Remove(entity);
                 await _context.SaveChangesAsync();
+            }
+            else
+            {
+                _logger.LogWarning("Financial account with ID {accountId} not found for deletion", id);
             }
         }
 
@@ -86,6 +93,7 @@ namespace RDS.ExpenseTracker.Business.Services
             var accountEntity = await _context.FinancialAccounts.FirstOrDefaultAsync(x => x.Id == accountId);
             if (accountEntity == null)
             {
+                _logger.LogWarning("Account with ID {accountId} not found for availability update", accountId);
                 return false;
             }
             
@@ -93,8 +101,7 @@ namespace RDS.ExpenseTracker.Business.Services
             if (saveChanges)
             {
                 await _context.SaveChangesAsync();
-            }
-            
+            }            
             
             return true;
         }
@@ -108,9 +115,10 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 _context.Entry(original).CurrentValues.SetValues(modified);
                 await _context.SaveChangesAsync();
-            }            
-        }
-
-        
+            }
+            else
+            {
+                _logger.LogWarning("Financial account with ID {accountId} not found for update", modified.Id);
+            }        
     }
 }

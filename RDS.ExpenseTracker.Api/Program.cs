@@ -16,8 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console()
     .Enrich.FromLogContext()
+    .WriteTo.Console()
     .CreateLogger();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -78,7 +78,6 @@ app.UseAuthorization();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-app.UseRouting();
 app.MapControllers()
     .RequireAuthorization();
 

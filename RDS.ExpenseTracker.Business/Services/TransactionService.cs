@@ -4,6 +4,7 @@ using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
 using RDS.ExpenseTracker.DataAccess.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
@@ -12,12 +13,14 @@ namespace RDS.ExpenseTracker.Business.Services
         private readonly IMapper _mapper;
         private readonly ExpenseTrackerContext _context;
         private readonly IFinancialAccountService _accountService;
+        private readonly ILogger<TransactionService> _logger;
 
-        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService)
+        public TransactionService(IMapper mapper, ExpenseTrackerContext context, IFinancialAccountService accountService, ILogger<TransactionService> logger)
         {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task AddTransactions(IEnumerable<Transaction> transactions)
@@ -110,13 +113,22 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task DeleteAllTransactions()
         {
-            var transactions = await _context.Transactions.ToListAsync();
-            _context.Transactions.RemoveRange(transactions);
-            foreach (var transaction in transactions)
+            try
             {
-                await _accountService.UpdateAvailability(transaction.FinancialAccountId, -transaction.Amount, false);
+                var transactions = await _context.Transactions.ToListAsync();
+                _context.Transactions.RemoveRange(transactions);
+                foreach (var transaction in transactions)
+                {
+                    await _accountService.UpdateAvailability(transaction.FinancialAccountId, -transaction.Amount, false);
+                }
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("All transactions deleted successfully");
             }
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting all transactions");
+                throw;
+            }
         }
 
         public async Task ResetTransactions(IEnumerable<Transaction> transactions)
@@ -127,6 +139,7 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 await _accountService.UpdateAvailability(account.Id, 0, false);
             }
+            _logger.LogInformation("Availabilities updated successfully");
             await AddTransactions(transactions);
         }
     }
