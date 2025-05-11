@@ -119,6 +119,7 @@ namespace RDS.ExpenseTracker.Business.Services
             else
             {
                 _logger.LogWarning("Financial account with ID {accountId} not found for update", modified.Id);
-            }        
+            }
+        }
     }
 }
