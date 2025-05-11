@@ -9,8 +9,16 @@ using RDS.ExpenseTracker.DataAccess.Utilities;
 using System.Collections;
 using System.Diagnostics;
 using RDS.ExpenseTracker.Api.Options;
+using Serilog;
+using RDS.ExpenseTracker.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -53,6 +61,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IFinancialAccountService, FinancialAccountService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddControllers();
+builder.Host.UseSerilog();
 
 var app = builder.Build();
 
@@ -67,6 +76,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.UseRouting();
 app.MapControllers()
     .RequireAuthorization();
 
