@@ -3,10 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Api.Dtos;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
-using RDS.ExpenseTracker.Api.Auth;
-
 
 namespace RDS.ExpenseTracker.Api.Controllers
 {
@@ -100,7 +96,6 @@ namespace RDS.ExpenseTracker.Api.Controllers
             }
         }
 
-        [AuthorizeForScopes(Scopes = [Scopes.TransactionResetter])]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IResult> Put([FromBody] IEnumerable<TransactionDto> transactionDtos)

@@ -17,7 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .Enrich.FromLogContext()
-    .WriteTo.Console()
+    .WriteTo.Console(
+        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+        standardErrorFromLevel: Serilog.Events.LogEventLevel.Information
+    )
     .CreateLogger();
 
 builder.Services.AddEndpointsApiExplorer();
