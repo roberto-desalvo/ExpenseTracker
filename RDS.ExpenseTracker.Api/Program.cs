@@ -45,6 +45,7 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddProblemDetails();
 builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
 {
     var kvOptions = new KeyVault();
@@ -54,9 +55,13 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
 
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization();
+}
+
 
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -66,19 +71,26 @@ builder.Services.AddControllers();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
-app.MapOpenApi();
-app.MapScalarApiReference();
+
+app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseCors(debugCorsPolicy);
 }
+else
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.MapControllers();
     //.RequireAuthorization();
