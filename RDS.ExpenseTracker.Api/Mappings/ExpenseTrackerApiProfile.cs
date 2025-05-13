@@ -23,8 +23,8 @@ namespace RDS.ExpenseTracker.Api.Helpers
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.CategoryDescription))
                 .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.FinancialAccountId))
-                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => src.FinancialAccountName));
-            CreateMap<Category, CategoryDto>();
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => src.FinancialAccountName)).ReverseMap();
+            CreateMap<Category, CategoryDto>().ReverseMap();
         }
     }
 }
