@@ -67,7 +67,11 @@ builder.Services.AddControllers();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
-app.Services.GetRequiredService<ExpenseTrackerContext>().AddSeedData();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<ExpenseTrackerContext>().AddSeedData();
+}
 
 app.UseHttpsRedirection();
 
