@@ -15,10 +15,10 @@ namespace RDS.ExpenseTracker.Business.Extensions
     {
         public static void AddSeedData(this ExpenseTrackerContext context)
         {
-            if (!context.Set<ECategory>().AsNoTracking().Any())
+            if (!context.Set<Category>().AsNoTracking().Any())
             {
                 var seedCategories = SeedData.GetSeedCategories();
-                context.Set<ECategory>().AddRange(seedCategories);
+                context.Set<Category>().AddRange(seedCategories);
                 context.SaveChanges();
             }
         }

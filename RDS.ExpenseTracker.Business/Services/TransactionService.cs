@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
-using RDS.ExpenseTracker.DataAccess.Entities;
+using Entities = RDS.ExpenseTracker.DataAccess.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace RDS.ExpenseTracker.Business.Services
@@ -25,7 +25,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task AddTransactions(IEnumerable<Transaction> transactions)
         {
-            var entites = _mapper.Map<IEnumerable<ETransaction>>(transactions);
+            var entites = _mapper.Map<IEnumerable<Entities.Transaction>>(transactions);
             await _context.Transactions.AddRangeAsync(entites);
             foreach (var transaction in entites)
             {
@@ -41,7 +41,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<int> AddTransaction(Transaction transaction, bool saveChanges)
         {
-            var entity = _mapper.Map<ETransaction>(transaction);
+            var entity = _mapper.Map<DataAccess.Entities.Transaction>(transaction);
 
             await _context.Transactions.AddAsync(entity);
             await _accountService.UpdateAvailability(entity.FinancialAccountId, entity.Amount, false);
@@ -94,7 +94,7 @@ namespace RDS.ExpenseTracker.Business.Services
             return await GetTransactions(null);
         }
 
-        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<ETransaction>, IQueryable<ETransaction>>? filter)
+        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<DataAccess.Entities.Transaction>, IQueryable<DataAccess.Entities.Transaction>>? filter)
         {
             var query = _context.Transactions.AsQueryable();
 

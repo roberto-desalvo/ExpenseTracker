@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
-using RDS.ExpenseTracker.DataAccess.Entities;
+using Entities = RDS.ExpenseTracker.DataAccess.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<int> AddCategory(Category category)
         {
-            var entity = _mapper.Map<ECategory>(category);
+            var entity = _mapper.Map<Entities.Category>(category);
             await _context.Categories.AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity.Id;

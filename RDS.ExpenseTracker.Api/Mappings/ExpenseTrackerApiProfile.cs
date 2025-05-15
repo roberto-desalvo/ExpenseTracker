@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using RDS.ExpenseTracker.Api.Dtos;
 using RDS.ExpenseTracker.Domain.Models;
-using RDS.ExpenseTracker.DataAccess.Entities;
+using Entities = RDS.ExpenseTracker.DataAccess.Entities;
 
 namespace RDS.ExpenseTracker.Api.Helpers
 {
@@ -9,16 +9,16 @@ namespace RDS.ExpenseTracker.Api.Helpers
     {
         public ExpenseTrackerApiProfile()
         {
-            CreateMap<ETransaction, Transaction>()
+            CreateMap<Entities.Transaction, Transaction>()
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Category.Description));
 
-            CreateMap<Transaction, ETransaction>()
+            CreateMap<Transaction, Entities.Transaction>()
                 .ForMember(dest => dest.Category, opt => opt.Ignore())
                 .ForMember(dest => dest.FinancialAccount, opt => opt.Ignore());
 
-            CreateMap<EFinancialAccount, FinancialAccount>().ReverseMap();
+            CreateMap<Entities.FinancialAccount, FinancialAccount>().ReverseMap();
 
-            CreateMap<ECategory, Category>()
+            CreateMap<Entities.Category, Category>()
                 .ForMember(x => x.Tags, opt => opt.MapFrom(src => src.Tags.Split(';', StringSplitOptions.None)))
                 .ReverseMap();
 

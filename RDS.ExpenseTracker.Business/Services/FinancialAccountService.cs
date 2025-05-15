@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
-using RDS.ExpenseTracker.DataAccess.Entities;
+using Entities = RDS.ExpenseTracker.DataAccess.Entities;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +24,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<int> AddFinancialAccount(FinancialAccount account)
         {
-            var item = _mapper.Map<EFinancialAccount>(account);
+            var item = _mapper.Map<Entities.FinancialAccount>(account);
             var entry = _context.FinancialAccounts.Add(item);
             await _context.SaveChangesAsync();
             return entry.Entity.Id;
@@ -61,7 +61,7 @@ namespace RDS.ExpenseTracker.Business.Services
             return await GetFinancialAccounts(null);
         }
 
-        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<IQueryable<EFinancialAccount>, IQueryable<EFinancialAccount>> filter)
+        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<IQueryable<Entities.FinancialAccount>, IQueryable<Entities.FinancialAccount>> filter)
         {
             var query = _context.FinancialAccounts.AsQueryable();
 
@@ -108,7 +108,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task UpdateFinancialAccount(FinancialAccount account)
         {
-            var modified = _mapper.Map<EFinancialAccount>(account);
+            var modified = _mapper.Map<DataAccess.Entities.FinancialAccount>(account);
             var original = await _context.FinancialAccounts.FindAsync(modified.Id);
 
             if (original != null)
