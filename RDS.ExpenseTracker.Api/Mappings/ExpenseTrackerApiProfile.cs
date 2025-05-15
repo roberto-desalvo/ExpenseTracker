@@ -10,27 +10,30 @@ namespace RDS.ExpenseTracker.Api.Helpers
         public ExpenseTrackerApiProfile()
         {
             CreateMap<ETransaction, Transaction>()
-                .ForMember(x =>x.CategoryDescription, opt => opt.MapFrom(x => x.Category.Name))
-                .ForMember(x =>x.CategoryId, opt => opt.MapFrom(x => x.Category.Id))
-                .ForMember(x =>x.FinancialAccountName, opt => opt.MapFrom(x => x.FinancialAccount.Name))
-                .ForMember(x =>x.FinancialAccountId, opt => opt.MapFrom(x => x.FinancialAccount.Id))
-                .ReverseMap();
+                .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Category.Description));
+
+            CreateMap<Transaction, ETransaction>()
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.FinancialAccount, opt => opt.Ignore());
 
             CreateMap<EFinancialAccount, FinancialAccount>().ReverseMap();
 
             CreateMap<ECategory, Category>()
-                .ForMember(x => x.Tags, opt => opt.MapFrom(src => src.Tags.Split(';', StringSplitOptions.None)));
+                .ForMember(x => x.Tags, opt => opt.MapFrom(src => src.Tags.Split(';', StringSplitOptions.None)))
+                .ReverseMap();
 
-            CreateMap<Category, ECategory>()
-                .ForMember(x => x.Tags, opt => opt.MapFrom(src => string.Join(';', src.Tags)));
+            CreateMap<FinancialAccount, FinancialAccountDto>()
+                .ReverseMap();
 
-            CreateMap<FinancialAccount, FinancialAccountDto>().ReverseMap();
             CreateMap<Transaction, TransactionDto>()
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId))
                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.CategoryDescription))
                 .ForMember(dest => dest.AccountId, opt => opt.MapFrom(src => src.FinancialAccountId))
-                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => src.FinancialAccountName)).ReverseMap();
-            CreateMap<Category, CategoryDto>().ReverseMap();
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => src.FinancialAccountName))
+                .ReverseMap();
+
+            CreateMap<Category, CategoryDto>()
+                .ReverseMap();
         }
     }
 }
