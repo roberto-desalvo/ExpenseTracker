@@ -12,6 +12,7 @@ using RDS.ExpenseTracker.Api.Options;
 using Serilog;
 using RDS.ExpenseTracker.Api.Middlewares;
 using Scalar.AspNetCore;
+using RDS.ExpenseTracker.Business.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,7 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
     builder.Configuration.GetSection(nameof(KeyVault)).Bind(kvOptions);
     var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(kvOptions.Uri, kvOptions.ConnectionStringSecretName);
     optBuilder.UseSqlServer(connectionString, sqlServerBuilder => sqlServerBuilder.EnableRetryOnFailure());
+    optBuilder.AddSeedData();
 
 });
 
