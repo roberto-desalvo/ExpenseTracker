@@ -15,7 +15,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var name = User.FindFirst(ClaimTypes.Name)?.Value;
 
-            return Results.Ok(new
+            return TypedResults.Ok(new
             {
                 UserId = userId,
                 Email = email,

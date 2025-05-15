@@ -6,8 +6,6 @@ using RDS.ExpenseTracker.Api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using RDS.ExpenseTracker.DataAccess.Utilities;
-using System.Collections;
-using System.Diagnostics;
 using RDS.ExpenseTracker.Api.Options;
 using Serilog;
 using RDS.ExpenseTracker.Api.Middlewares;
@@ -17,12 +15,9 @@ using RDS.ExpenseTracker.Business.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
+    .MinimumLevel.Information()
     .Enrich.FromLogContext()
-    .WriteTo.Console(
-        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}",
-        standardErrorFromLevel: Serilog.Events.LogEventLevel.Information
-    )
+    .WriteTo.Console()
     .CreateLogger();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -53,7 +48,6 @@ builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
     builder.Configuration.GetSection(nameof(KeyVault)).Bind(kvOptions);
     var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(kvOptions.Uri, kvOptions.ConnectionStringSecretName);
     optBuilder.UseSqlServer(connectionString, sqlServerBuilder => sqlServerBuilder.EnableRetryOnFailure());
-    optBuilder.AddSeedData();
 
 });
 
@@ -73,8 +67,11 @@ builder.Services.AddControllers();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
+app.Services.GetRequiredService<ExpenseTrackerContext>().AddSeedData();
 
 app.UseHttpsRedirection();
+
+
 
 if (app.Environment.IsDevelopment())
 {

@@ -31,12 +31,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var results = await _service.GetFinancialAccounts();
                 var dtos = _mapper.Map<IEnumerable<FinancialAccountDto>>(results);
-                return Results.Ok(dtos);
+                return TypedResults.Ok(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching accounts");
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -48,12 +48,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var account = await _service.GetFinancialAccount(id);
                 var dto = _mapper.Map<FinancialAccountDto>(account);
-                return Results.Ok(dto);
+                return TypedResults.Ok(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching account with ID {id}", id);
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -64,12 +64,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             try
             {
                 var availability = await _service.GetAvailability(id);
-                return Results.Ok(availability);
+                return TypedResults.Ok(availability);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching availability for account with ID {id}", id);
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -83,12 +83,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var id = await _service.AddFinancialAccount(account);
                 _logger.LogInformation("Account {account.Name} created with ID {id}", account.Name, account.Id);
-                return Results.Ok(id);
+                return TypedResults.Ok(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating account {account.Name}", account.Name);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -102,12 +102,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.UpdateFinancialAccount(account);
                 _logger.LogInformation("Account {account.Name} updated with ID {id}", account.Name, account.Id);
-                return Results.Ok(account);
+                return TypedResults.Ok(account);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating account {account.Name}", account.Name);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -119,12 +119,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.DeleteFinancialAccount(id);
                 _logger.LogInformation("Account with ID {id} deleted", id);
-                return Results.Ok();
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting account with ID {id}", id);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
     }
