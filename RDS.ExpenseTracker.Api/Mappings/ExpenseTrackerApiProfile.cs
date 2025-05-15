@@ -9,19 +9,6 @@ namespace RDS.ExpenseTracker.Api.Helpers
     {
         public ExpenseTrackerApiProfile()
         {
-            CreateMap<Entities.Transaction, Transaction>()
-                .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Category.Description));
-
-            CreateMap<Transaction, Entities.Transaction>()
-                .ForMember(dest => dest.Category, opt => opt.Ignore())
-                .ForMember(dest => dest.FinancialAccount, opt => opt.Ignore());
-
-            CreateMap<Entities.FinancialAccount, FinancialAccount>().ReverseMap();
-
-            CreateMap<Entities.Category, Category>()
-                .ForMember(x => x.Tags, opt => opt.MapFrom(src => src.Tags.Split(';', StringSplitOptions.None)))
-                .ReverseMap();
-
             CreateMap<FinancialAccount, FinancialAccountDto>()
                 .ReverseMap();
 

@@ -1,16 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RDS.ExpenseTracker.Business.Services;
-using RDS.ExpenseTracker.Business.Services.Abstractions;
-using RDS.ExpenseTracker.DataAccess;
-using RDS.ExpenseTracker.Api.Helpers;
+﻿using RDS.ExpenseTracker.Api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
-using RDS.ExpenseTracker.DataAccess.Utilities;
-using RDS.ExpenseTracker.Api.Options;
 using Serilog;
 using RDS.ExpenseTracker.Api.Middlewares;
 using Scalar.AspNetCore;
 using RDS.ExpenseTracker.Business.Extensions;
+using RDS.ExpenseTracker.Business.Options;
+using RDS.ExpenseTracker.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,39 +38,26 @@ if (builder.Environment.IsDevelopment())
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddProblemDetails();
-builder.Services.AddDbContext<ExpenseTrackerContext>(optBuilder =>
-{
-    var kvOptions = new KeyVault();
-    builder.Configuration.GetSection(nameof(KeyVault)).Bind(kvOptions);
-    var connectionString = AzureKeyVaultHandler.GetKeyVaultSecret(kvOptions.Uri, kvOptions.ConnectionStringSecretName);
-    optBuilder.UseSqlServer(connectionString, sqlServerBuilder => sqlServerBuilder.EnableRetryOnFailure());
 
-});
+var kvOptions = new KeyVaultOptions();
+builder.Configuration.GetSection(SectionNames.KeyVault).Bind(kvOptions);
+builder.Services.AddBusinessServices(kvOptions);
 
 if (!builder.Environment.IsDevelopment())
 {
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection(SectionNames.AzureAd));
     builder.Services.AddAuthorization();
 }
 
-
 builder.Services.AddAutoMapper(x => x.AddProfile<ExpenseTrackerApiProfile>());
-builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IFinancialAccountService, FinancialAccountService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddControllers();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    scope.ServiceProvider.GetRequiredService<ExpenseTrackerContext>().AddSeedData();
-}
-
+app.Services.AddSeedData();
 app.UseHttpsRedirection();
-
 
 
 if (app.Environment.IsDevelopment())
