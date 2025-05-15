@@ -33,12 +33,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var results = await _service.GetTransactions(transactions => transactions
                     .Where(t => (t.Date <= (toDate ?? DateTime.MaxValue)) && (t.Date >= (fromDate ?? DateTime.MinValue))));
                 var dtos = _mapper.Map<IEnumerable<TransactionDto>>(results);
-                return Results.Ok(dtos);
+                return TypedResults.Ok(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching transactions");
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -50,12 +50,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var transaction = await _service.GetTransaction(id);
                 var dto = _mapper.Map<TransactionDto>(transaction);
-                return Results.Ok(dto);
+                return TypedResults.Ok(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching transaction with ID {id}", id);
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -69,12 +69,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var transaction = _mapper.Map<Transaction>(dto);
                 var id = await _service.AddTransaction(transaction);
                 _logger.LogInformation("Transaction added with ID {id}", id);
-                return Results.Ok(id);
+                return TypedResults.Ok(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while adding transaction");
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -87,12 +87,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var transaction = _mapper.Map<Transaction>(dto);
                 await _service.UpdateTransaction(transaction);
                 _logger.LogInformation("Transaction updated with ID {id}", id);
-                return Results.Ok(transaction);
+                return TypedResults.Ok(transaction);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating transaction with ID {id}", id);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -106,12 +106,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var transactions = _mapper.Map<IEnumerable<Transaction>>(transactionDtos);
                 await _service.ResetTransactions(transactions);
                 _logger.LogInformation("Transactions reset successfully");
-                return Results.Ok();
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while resetting transactions");
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -123,12 +123,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.DeleteTransaction(id);
                 _logger.LogInformation("Transaction with ID {id} deleted", id);
-                return Results.Ok();
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while deleting transaction with ID {id}", id);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
     }

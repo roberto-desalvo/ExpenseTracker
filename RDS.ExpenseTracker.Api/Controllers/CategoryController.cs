@@ -31,12 +31,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var results = await _service.GetCategories();
                 var dtos = _mapper.Map<IEnumerable<CategoryDto>>(results);
-                return Results.Ok(dtos);
+                return TypedResults.Ok(dtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching categories");
-                return Results.Problem($"{ex}, {ex.Message}");
+                return TypedResults.Problem($"{ex}, {ex.Message}");
             }
         }
 
@@ -50,16 +50,16 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var category = await _service.GetCategory(id);
                 if (category == null)
                 {
-                    return Results.NoContent();
+                    return TypedResults.NoContent();
                 }
 
                 var dto = _mapper.Map<CategoryDto>(category);
-                return Results.Ok(dto);
+                return TypedResults.Ok(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching category with ID {id}", id);
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -73,16 +73,16 @@ namespace RDS.ExpenseTracker.Api.Controllers
                 var category = await _service.GetDefaultCategory();
                 if(category == null)
                 {
-                    return Results.NoContent();
+                    return TypedResults.NoContent();
                 }
 
                 var dto = _mapper.Map<CategoryDto>(category);
-                return Results.Ok(dto);
+                return TypedResults.Ok(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while fetching default category");
-                return Results.Problem(ex.Message);
+                return TypedResults.Problem(ex.Message);
             }
         }
 
@@ -96,12 +96,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var id = await _service.AddCategory(category);
                 _logger.LogInformation("Category created with ID {id}", id);
-                return Results.Ok(id);
+                return TypedResults.Ok(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating category {category.Name}", category.Name);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -115,12 +115,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.UpdateCategory(category);
                 _logger.LogInformation("Category {category.Name} updated with ID {id}", category.Name, id);
-                return Results.Ok(category);
+                return TypedResults.Ok(category);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating category {category.Name}", category.Name);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
 
@@ -132,12 +132,12 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 await _service.DeleteCategory(id);
                 _logger.LogInformation("Category with ID {id} deleted", id);
-                return Results.Ok();
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting category with ID {id}", id);
-                return Results.Problem($"{ex} {ex.Message}");
+                return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
     }

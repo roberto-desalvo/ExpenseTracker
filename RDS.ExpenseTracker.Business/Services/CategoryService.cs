@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RDS.ExpenseTracker.DataAccess.Seeds;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
@@ -44,7 +45,7 @@ namespace RDS.ExpenseTracker.Business.Services
         public async Task<IEnumerable<Category>> GetCategories()
         {
             var categories = await _context.Categories.ToListAsync();
-            return _mapper.Map<IEnumerable<Category>>(categories);   
+            return _mapper.Map<IEnumerable<Category>>(categories);
         }
 
         public async Task<Category?> GetCategory(int id)
@@ -55,15 +56,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<Category> GetDefaultCategory()
         {
-            var defaultCategoryId = 1;
-            var entity = await _context.Categories.FindAsync(defaultCategoryId); 
-
-            if(entity == null)
-            {
-                var defaultCategoryName = "default";
-                entity = await _context.Categories.FirstOrDefaultAsync(c => c.Name.ToLowerInvariant() == defaultCategoryName);
-            }
-
+            var entity = await _context.Categories.FirstOrDefaultAsync(c => c.IsDefault);
             return _mapper.Map<Category>(entity);
         }
 
