@@ -60,6 +60,29 @@ namespace RDS.ExpenseTracker.Api.Controllers
             }
         }
 
+        [HttpGet("latest")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TransactionDto))]
+        public async Task<IResult> GetLatest()
+        {
+            try
+            {
+                var transaction = await _service.GetLatestTransaction();
+
+                if(transaction == null)
+                {
+                    return TypedResults.NoContent();
+                }
+
+                var dto = _mapper.Map<TransactionDto>(transaction);
+                return TypedResults.Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching latest transaction");
+                return TypedResults.Problem(ex.Message);
+            }
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
         public async Task<IResult> Post([FromBody] TransactionDto dto)

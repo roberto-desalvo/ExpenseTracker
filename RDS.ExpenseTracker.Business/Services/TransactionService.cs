@@ -32,7 +32,7 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 await _accountService.UpdateAvailability(transaction.FinancialAccountId, transaction.Amount, false);
             }
-            await _context.SaveChangesAsync();            
+            await _context.SaveChangesAsync();
         }
 
         public async Task<int> AddTransaction(Transaction transaction)
@@ -72,6 +72,12 @@ namespace RDS.ExpenseTracker.Business.Services
             return _mapper.Map<Transaction?>(entity);
         }
 
+        public async Task<Transaction> GetLatestTransaction()
+        {
+            var entity = await _context.Transactions.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
+            return _mapper.Map<Transaction>(entity);
+        }
+
         public async Task UpdateTransaction(Transaction modified)
         {
             var current = await _context.Transactions.FirstOrDefaultAsync(x => x.Id == modified.Id);
@@ -102,7 +108,7 @@ namespace RDS.ExpenseTracker.Business.Services
 
             if (filter != null)
             {
-                if(filter.FromDate != null)
+                if (filter.FromDate != null)
                 {
                     query = query.Where(x => x.Date > filter.FromDate);
                 }
@@ -152,5 +158,7 @@ namespace RDS.ExpenseTracker.Business.Services
             _logger.LogInformation("Availabilities updated successfully");
             await AddTransactions(transactions);
         }
+
+
     }
 }
