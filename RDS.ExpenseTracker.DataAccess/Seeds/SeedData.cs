@@ -9,7 +9,7 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
 {
     public static class SeedData
     {
-        public static IEnumerable<ECategory> GetSeedCategories()
+        public static IEnumerable<Category> GetSeedCategories()
         {
             yield return CategoryBuilder.Create()
                 .WithName("Default").WithDescription("Other").WithTags("default").WithIsDefault(true)
@@ -59,11 +59,11 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
 
         private class CategoryBuilder
         {
-            private readonly ECategory category;
+            private readonly Category category;
 
             protected CategoryBuilder()
             {
-                category = new ECategory();
+                category = new Category();
             }
 
             public static CategoryBuilder Create() => new();
@@ -98,7 +98,7 @@ namespace RDS.ExpenseTracker.DataAccess.Seeds
                 return this;
             }
 
-            public ECategory Build() => category;
+            public Category Build() => category;
 
         }
     }

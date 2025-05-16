@@ -7,9 +7,9 @@ namespace RDS.ExpenseTracker.DataAccess
 {
     public class ExpenseTrackerContext : DbContext
     {
-        public DbSet<ETransaction> Transactions { get; set; }
-        public DbSet<EFinancialAccount> FinancialAccounts { get; set; }
-        public DbSet<ECategory> Categories { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<FinancialAccount> FinancialAccounts { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         #region Constructors
         public ExpenseTrackerContext()
@@ -29,10 +29,10 @@ namespace RDS.ExpenseTracker.DataAccess
 
             optionsBuilder.UseSeeding((context, _) =>
             {
-                if (!context.Set<ECategory>().AsNoTracking().Any())
+                if (!context.Set<Category>().AsNoTracking().Any())
                 {
                     var seedCategories = SeedData.GetSeedCategories();
-                    context.Set<ECategory>().AddRange(seedCategories);
+                    context.Set<Category>().AddRange(seedCategories);
                     context.SaveChanges();
                 }
             });
@@ -44,13 +44,13 @@ namespace RDS.ExpenseTracker.DataAccess
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<EFinancialAccount>()
+            modelBuilder.Entity<FinancialAccount>()
                 .HasMany(x => x.Transactions)
                 .WithOne(x => x.FinancialAccount)
                 .HasForeignKey(x => x.FinancialAccountId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ECategory>()
+            modelBuilder.Entity<Category>()
                 .HasMany(x => x.Transactions)
                 .WithOne(x => x.Category)
                 .HasForeignKey(x => x.CategoryId)

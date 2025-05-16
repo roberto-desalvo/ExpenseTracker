@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RDS.ExpenseTracker.Domain",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RDS.ExpenseTracker.Business.Tests", "RDS.ExpenseTracker.Business.Tests\RDS.ExpenseTracker.Business.Tests.csproj", "{FE78A978-D3B0-43BA-919E-7C4BE21C8F04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RDS.ExpenseTracker.ArchitectureTests", "RDS.ExpenseTracker.Architecture.Tests\RDS.ExpenseTracker.ArchitectureTests.csproj", "{E73191C2-F106-4ADE-BAD3-C89E0E02543E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{FE78A978-D3B0-43BA-919E-7C4BE21C8F04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE78A978-D3B0-43BA-919E-7C4BE21C8F04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE78A978-D3B0-43BA-919E-7C4BE21C8F04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E73191C2-F106-4ADE-BAD3-C89E0E02543E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E73191C2-F106-4ADE-BAD3-C89E0E02543E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E73191C2-F106-4ADE-BAD3-C89E0E02543E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E73191C2-F106-4ADE-BAD3-C89E0E02543E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

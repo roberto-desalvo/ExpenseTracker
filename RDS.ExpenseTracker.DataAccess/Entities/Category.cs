@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RDS.ExpenseTracker.DataAccess.Entities
 {
-    public class ECategory
+    public class Category
     {
         public int Id { get; set; }
         public int Priority { get; set; }
@@ -14,6 +14,6 @@ namespace RDS.ExpenseTracker.DataAccess.Entities
         public string Description { get; set; } = string.Empty;
         public string Tags { get; set; } = string.Empty;
         public bool IsDefault { get; set; }
-        public ICollection<ETransaction>? Transactions { get; set; }
+        public ICollection<Transaction>? Transactions { get; set; }
     }
 }

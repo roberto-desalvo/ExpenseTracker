@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RDS.ExpenseTracker.Domain.Models;
 using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.Api.Dtos;
+using RDS.ExpenseTracker.Business.QueryFilters;
 
 namespace RDS.ExpenseTracker.Api.Controllers
 {
@@ -30,8 +31,8 @@ namespace RDS.ExpenseTracker.Api.Controllers
         {
             try
             {
-                var results = await _service.GetTransactions(transactions => transactions
-                    .Where(t => (t.Date <= (toDate ?? DateTime.MaxValue)) && (t.Date >= (fromDate ?? DateTime.MinValue))));
+                var filter = new TransactionQueryFilter { FromDate = fromDate, ToDate = toDate };
+                var results = await _service.GetTransactions(filter);
                 var dtos = _mapper.Map<IEnumerable<TransactionDto>>(results);
                 return TypedResults.Ok(dtos);
             }
