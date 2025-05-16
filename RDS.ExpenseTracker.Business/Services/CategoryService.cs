@@ -24,12 +24,11 @@ namespace RDS.ExpenseTracker.Business.Services
             _context = context;
         }
 
-        public async Task<int> AddCategory(Category category)
+        public async Task AddCategories(IEnumerable<Category> categories)
         {
-            var entity = _mapper.Map<Entities.Category>(category);
-            await _context.Categories.AddAsync(entity);
+            var entities = _mapper.Map<IEnumerable<Entities.Category>>(categories);
+            await _context.Categories.AddRangeAsync(entities);
             await _context.SaveChangesAsync();
-            return entity.Id;
         }
 
         public async Task DeleteCategory(int id)
