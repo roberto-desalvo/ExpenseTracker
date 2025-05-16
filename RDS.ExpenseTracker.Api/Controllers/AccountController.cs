@@ -74,20 +74,20 @@ namespace RDS.ExpenseTracker.Api.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
-        public async Task<IResult> Post([FromBody] FinancialAccountDto dto)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IResult> Post([FromBody] IEnumerable<FinancialAccountDto> dto)
         {
-            var account = _mapper.Map<FinancialAccount>(dto);
-
             try
             {
-                var id = await _service.AddFinancialAccount(account);
-                _logger.LogInformation("Account {account.Name} created with ID {id}", account.Name, account.Id);
-                return TypedResults.Ok(id);
+                var accounts = _mapper.Map<IEnumerable<FinancialAccount>>(dto);
+                await _service.AddFinancialAccounts(accounts);
+                
+                _logger.LogInformation("Accounts created: {accounts} ", string.Join(" - ", accounts.Select(x => $"Id: {x.Id}, Name: {x.Name}")));
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating account {account.Name}", account.Name);
+                _logger.LogError(ex, "Error creating accounts: {accounts}", string.Join(" - ", dto.Select(x => x.Name)));
                 return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }

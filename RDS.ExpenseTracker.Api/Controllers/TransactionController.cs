@@ -68,7 +68,7 @@ namespace RDS.ExpenseTracker.Api.Controllers
             {
                 var transaction = await _service.GetLatestTransaction();
 
-                if(transaction == null)
+                if (transaction == null)
                 {
                     return TypedResults.NoContent();
                 }
@@ -85,19 +85,18 @@ namespace RDS.ExpenseTracker.Api.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
-        public async Task<IResult> Post([FromBody] TransactionDto dto)
+        public async Task<IResult> Post([FromBody] IEnumerable<TransactionDto> dto)
         {
-
             try
             {
-                var transaction = _mapper.Map<Transaction>(dto);
-                var id = await _service.AddTransaction(transaction);
-                _logger.LogInformation("Transaction added with ID {id}", id);
-                return TypedResults.Ok(id);
+                var transactions = _mapper.Map<IEnumerable<Transaction>>(dto);
+                await _service.AddTransactions(transactions);
+                _logger.LogInformation("Transactions created (count: {count})", transactions.Count());
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding transaction");
+                _logger.LogError(ex, "Error occurred while adding transactions (count: {count})", dto.Count());
                 return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }

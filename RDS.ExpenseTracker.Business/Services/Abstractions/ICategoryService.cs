@@ -13,7 +13,7 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         Task<IEnumerable<Category>> GetCategories();
         Task DeleteCategory(int id);
         Task UpdateCategory(Category category);
-        Task<int> AddCategory(Category category);
+        Task AddCategories(IEnumerable<Category> categories);
         Task<Category?> GetCategory(int id);
     }
 }

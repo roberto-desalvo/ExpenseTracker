@@ -22,12 +22,11 @@ namespace RDS.ExpenseTracker.Business.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<int> AddFinancialAccount(FinancialAccount account)
+        public async Task AddFinancialAccounts(IEnumerable<FinancialAccount> accounts)
         {
-            var item = _mapper.Map<Entities.FinancialAccount>(account);
-            var entry = _context.FinancialAccounts.Add(item);
+            var items = _mapper.Map<IEnumerable<Entities.FinancialAccount>>(accounts);
+            await _context.FinancialAccounts.AddRangeAsync(items);
             await _context.SaveChangesAsync();
-            return entry.Entity.Id;
         }
 
         public async Task DeleteFinancialAccount(int id)

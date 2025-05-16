@@ -4,7 +4,7 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface IFinancialAccountService
     {
-        Task<int> AddFinancialAccount(FinancialAccount account);
+        Task AddFinancialAccounts(IEnumerable<FinancialAccount> accounts);
         Task DeleteFinancialAccount(int id);
         Task UpdateFinancialAccount(FinancialAccount account);
         Task<FinancialAccount?> GetFinancialAccount(int id);

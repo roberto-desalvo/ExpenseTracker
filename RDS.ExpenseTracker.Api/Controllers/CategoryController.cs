@@ -88,19 +88,18 @@ namespace RDS.ExpenseTracker.Api.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(int))]
-        public async Task<IResult> Post([FromBody] CategoryDto dto)
+        public async Task<IResult> Post([FromBody] IEnumerable<CategoryDto> dto)
         {
-            var category = _mapper.Map<Category>(dto);
-
             try
             {
-                var id = await _service.AddCategory(category);
-                _logger.LogInformation("Category created with ID {id}", id);
-                return TypedResults.Ok(id);
+                var categories = _mapper.Map<IEnumerable<Category>>(dto);
+                await _service.AddCategories(categories);
+                _logger.LogInformation("Categories created: {categories} ", string.Join(" - ", categories.Select(x => $"Id: {x.Id}, Name: {x.Name}")));
+                return TypedResults.Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating category {category.Name}", category.Name);
+                _logger.LogError(ex, "Error creating categories: {categories}", string.Join(" - ", dto.Select(x => x.Name)));
                 return TypedResults.Problem($"{ex} {ex.Message}");
             }
         }
