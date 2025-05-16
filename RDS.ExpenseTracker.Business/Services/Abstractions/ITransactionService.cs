@@ -8,6 +8,7 @@ namespace RDS.ExpenseTracker.Business.Services.Abstractions
         Task<Transaction?> GetTransaction(int id);
         Task<IEnumerable<Transaction>> GetTransactions();
         Task<IEnumerable<Transaction>> GetTransactions(TransactionQueryFilter filter);
+        Task<Transaction> GetLatestTransaction();
         Task AddTransactions(IEnumerable<Transaction> transactions);
         Task UpdateTransaction(Transaction transaction);
         Task DeleteTransaction(int id);
