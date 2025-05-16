@@ -1,19 +1,19 @@
-﻿using RDS.ExpenseTracker.Domain.Models;
-using RDS.ExpenseTracker.DataAccess.Entities;
+﻿using RDS.ExpenseTracker.Business.QueryFilters;
+using RDS.ExpenseTracker.Domain.Models;
 
 namespace RDS.ExpenseTracker.Business.Services.Abstractions
 {
     public interface ITransactionService
     {
-        Task<Domain.Models.Transaction?> GetTransaction(int id);
-        Task<IEnumerable<Domain.Models.Transaction>> GetTransactions();
-        Task<IEnumerable<Domain.Models.Transaction>> GetTransactions(Func<IQueryable<DataAccess.Entities.Transaction>, IQueryable<DataAccess.Entities.Transaction>> filter);
-        Task AddTransactions(IEnumerable<Domain.Models.Transaction> transactions);
-        Task UpdateTransaction(Domain.Models.Transaction transaction);
+        Task<Transaction?> GetTransaction(int id);
+        Task<IEnumerable<Transaction>> GetTransactions();
+        Task<IEnumerable<Transaction>> GetTransactions(TransactionQueryFilter filter);
+        Task AddTransactions(IEnumerable<Transaction> transactions);
+        Task UpdateTransaction(Transaction transaction);
         Task DeleteTransaction(int id);
         Task DeleteAllTransactions();
-        Task<int> AddTransaction(Domain.Models.Transaction transaction);
-        Task<int> AddTransaction(Domain.Models.Transaction transaction, bool saveChanges);
-        Task ResetTransactions(IEnumerable<Domain.Models.Transaction> transactions);
+        Task<int> AddTransaction(Transaction transaction);
+        Task<int> AddTransaction(Transaction transaction, bool saveChanges);
+        Task ResetTransactions(IEnumerable<Transaction> transactions);
     }
 }

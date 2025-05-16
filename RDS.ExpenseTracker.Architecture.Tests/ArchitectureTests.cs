@@ -1,46 +1,70 @@
-﻿using FluentAssertions;
-using NetArchTest.Rules;
+﻿using ArchUnitNET.Loader;
 using RDS.ExpenseTracker.Api.Architecture;
 using RDS.ExpenseTracker.Business.Architecture;
 using RDS.ExpenseTracker.DataAccess.Architecture;
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
+using ArchUnitNET.Fluent;
+using ArchUnitNET.Domain;
+using System.Text.RegularExpressions;
+using FluentAssertions;
+using RDS.ExpenseTracker.Domain.Architecture;
+using ArchUnitNET.xUnitV3;
 
-namespace RDS.ExpenseTracker.Architecture.Tests
+
+namespace RDS.ExpenseTracker.ArchitectureTests
 {
     public class ArchitectureTests
     {
+        private readonly IObjectProvider<IType> PresentationLayer =
+            Types().That().ResideInAssembly($@"^{Regex.Escape(typeof(PresentationAssemblyMarker).Assembly.GetName().Name)}(\..*)?$")
+            .As("Presentation Layer");
+
+        private readonly IObjectProvider<IType> DataAccessLayer =
+            Types().That().ResideInAssembly($@"^{Regex.Escape(typeof(DataAccessAssemblyMarker).Assembly.GetName().Name)}(\..*)?$")
+            .As("DataAccess Layer");
+
+        private readonly IObjectProvider<IType> BusinessLayer =
+            Types().That().ResideInAssembly($@"^{Regex.Escape(typeof(BusinessAssemblyMarker).Assembly.GetName().Name)}(\..*)?$")
+            .As("Business Layer");
+
+
+        private static readonly Architecture Architecture = new ArchLoader()
+            .LoadAssemblies(
+                typeof(PresentationAssemblyMarker).Assembly,
+                typeof(BusinessAssemblyMarker).Assembly,
+                typeof(DataAccessAssemblyMarker).Assembly,
+                typeof(DomainAssemblyMarker).Assembly)
+            .Build();
 
         [Fact]
-        public void Presentation_ShouldNotReference_Data()
+        public void PresentationLayer_ShouldNotDependOnDataLayer()
         {
-            var result = Types
-                .InAssembly(typeof(PresentationAssemblyMarker).Assembly)
-                .ShouldNot()
-                .HaveDependencyOn(typeof(DataAccessAssemblyMarker).Assembly.GetName().Name)
-                .GetResult();
+            IArchRule rule = Types()
+                .That().Are(PresentationLayer)
+                .Should().NotDependOnAny(DataAccessLayer)
+                .Because("it's forbidden")
+                .WithoutRequiringPositiveResults();
 
-            result.IsSuccessful.Should().BeTrue("Presentation should not have direct dependencies on Data");
+            rule.Check(Architecture);
         }
 
         [Theory]
         [InlineData(typeof(PresentationAssemblyMarker))]
         [InlineData(typeof(DataAccessAssemblyMarker))]
         [InlineData(typeof(BusinessAssemblyMarker))]
-        public void All_Classes_Should_Use_Correct_Namespace_Prefix(object assemblyMarker)
+        [InlineData(typeof(DomainAssemblyMarker))]
+        public void AllAssemblyClasses_ShouldResideInProperNamespace(System.Type type)
         {
-            var assembly = assemblyMarker.GetType().Assembly;
+            var assembly = type.Assembly;
             var expectedNamespacePrefix = assembly.GetName().Name;
+            var namespaceRegexPattern = $@"^{Regex.Escape(expectedNamespacePrefix)}(\..*)?$";
 
-            var failingTypes = Types.InAssembly(assembly)
-                .That()
-                .AreClasses()
-                .GetTypes()
-                .Where(t => t.Namespace != null && !t.Namespace.StartsWith(expectedNamespacePrefix))
-                .ToList();
+            var rule = Types()
+                .That().ResideInAssembly(assembly)
+                .And().DoNotHaveName("Program")
+                .Should().ResideInNamespace(namespaceRegexPattern, useRegularExpressions: true);
 
-            failingTypes.Should().BeEmpty(
-                $"All classes in {expectedNamespacePrefix} should have a namespace which starts with '{expectedNamespacePrefix}', but the followings have not:\n" +
-                string.Join("\n", failingTypes.Select(t => t.FullName))
-            );
+            rule.Check(Architecture);
         }
     }
 }

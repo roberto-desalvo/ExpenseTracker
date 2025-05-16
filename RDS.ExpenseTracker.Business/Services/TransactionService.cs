@@ -5,6 +5,7 @@ using RDS.ExpenseTracker.Business.Services.Abstractions;
 using RDS.ExpenseTracker.DataAccess;
 using Entities = RDS.ExpenseTracker.DataAccess.Entities;
 using Microsoft.Extensions.Logging;
+using RDS.ExpenseTracker.Business.QueryFilters;
 
 namespace RDS.ExpenseTracker.Business.Services
 {
@@ -94,13 +95,22 @@ namespace RDS.ExpenseTracker.Business.Services
             return await GetTransactions(null);
         }
 
-        public async Task<IEnumerable<Transaction>> GetTransactions(Func<IQueryable<DataAccess.Entities.Transaction>, IQueryable<DataAccess.Entities.Transaction>>? filter)
+        public async Task<IEnumerable<Transaction>> GetTransactions(TransactionQueryFilter? filter)
         {
             var query = _context.Transactions.AsQueryable();
 
+
             if (filter != null)
             {
-                query = filter.Invoke(query);
+                if(filter.FromDate != null)
+                {
+                    query = query.Where(x => x.Date > filter.FromDate);
+                }
+
+                if (filter.ToDate != null)
+                {
+                    query = query.Where(x => x.Date < filter.ToDate);
+                }
             }
 
             query = query.Include(x => x.FinancialAccount);

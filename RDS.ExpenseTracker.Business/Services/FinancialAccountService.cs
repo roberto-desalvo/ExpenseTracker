@@ -58,22 +58,12 @@ namespace RDS.ExpenseTracker.Business.Services
 
         public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts()
         {
-            return await GetFinancialAccounts(null);
-        }
-
-        public async Task<IEnumerable<FinancialAccount>> GetFinancialAccounts(Func<IQueryable<Entities.FinancialAccount>, IQueryable<Entities.FinancialAccount>> filter)
-        {
             var query = _context.FinancialAccounts.AsQueryable();
-
-            if(filter != null)
-            {
-                query = filter.Invoke(query);
-            }
-
             var results = await query.ToListAsync();
 
             return _mapper.Map<IEnumerable<FinancialAccount>>(results);
         }
+
 
         public async Task CalculateAvailabilities(IEnumerable<Transaction> transactions)
         {
