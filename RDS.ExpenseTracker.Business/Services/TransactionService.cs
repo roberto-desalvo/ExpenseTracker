@@ -110,12 +110,12 @@ namespace RDS.ExpenseTracker.Business.Services
             {
                 if (filter.FromDate != null)
                 {
-                    query = query.Where(x => x.Date > filter.FromDate);
+                    query = query.Where(x => x.Date >= filter.FromDate);
                 }
 
                 if (filter.ToDate != null)
                 {
-                    query = query.Where(x => x.Date < filter.ToDate);
+                    query = query.Where(x => x.Date <= filter.ToDate);
                 }
             }
 
